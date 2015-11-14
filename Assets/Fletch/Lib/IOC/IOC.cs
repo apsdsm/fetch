@@ -69,7 +69,7 @@ namespace Fletch
                     {
                         if (type.ToString().EndsWith( "Service" ))
                         {
-                            AddService( component.GetType(), component );
+                            AddService( type, component );
                         }
                     }
                 }

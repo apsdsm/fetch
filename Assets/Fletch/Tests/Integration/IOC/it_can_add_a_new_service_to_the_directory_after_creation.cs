@@ -3,7 +3,7 @@
 namespace Fletch.Test {
 
     [IntegrationTest.DynamicTest( "Fletch.IOCTest" )]
-    public class it_provides_a_reference_to_a_service_that_is_a_child_object : MonoBehaviour {
+    public class it_can_add_a_new_service_to_the_directory_after_creation : MonoBehaviour {
 
         GameObject ioc_object;
         IOC ioc;
@@ -24,20 +24,17 @@ namespace Fletch.Test {
             service_object.transform.parent = ioc_object.transform;
             service = service_object.AddComponent<FletchTestService>();
 
-            // this would normally be called during start
+            // Add the service as a new child
             ioc.AddService( typeof( IFletchTestService ), service );
         }
 
         // test
         void Update () {
 
-            // should be able to resolve the test service
             FletchTestService resolved_service = (FletchTestService)IOC.Resolve<IFletchTestService>();
 
-            // fail if service not resolved
-            IntegrationTest.Assert( resolved_service != null, "Service was not resolved." );
+            IntegrationTest.Assert( resolved_service != null, "should be able to access the service" );
 
-            // otherwise pass
             IntegrationTest.Pass();
         }
 
