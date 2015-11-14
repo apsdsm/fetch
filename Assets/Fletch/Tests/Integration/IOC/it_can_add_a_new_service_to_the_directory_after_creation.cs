@@ -7,12 +7,15 @@ namespace Fletch.Test {
 
         GameObject ioc_object;
         IOC ioc;
-
         GameObject service_object;
         FletchTestService service;
         
         // setup
         void Awake () {
+
+            // This test involves calling a method on the ioc, so we won't use
+            // the factory in this instance, and do the creation by hand - that
+            // said I wish there was a way to automate this kinf of thing too.
 
             // create a new IOC and attach to the test
             ioc_object = new GameObject();
@@ -26,14 +29,15 @@ namespace Fletch.Test {
 
             // Add the service as a new child
             ioc.AddService( typeof( IFletchTestService ), service );
+            
         }
 
         // test
         void Update () {
 
-            FletchTestService resolved_service = (FletchTestService)IOC.Resolve<IFletchTestService>();
+            int count = IOC.Services().Length;
 
-            IntegrationTest.Assert( resolved_service != null, "should be able to access the service" );
+            IntegrationTest.Assert( count == 1, "should be 1 resolvable service but found: " + count.ToString() );
 
             IntegrationTest.Pass();
         }

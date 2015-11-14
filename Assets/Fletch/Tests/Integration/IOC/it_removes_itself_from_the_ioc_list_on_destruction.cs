@@ -5,33 +5,32 @@ namespace Fletch.Test {
     [IntegrationTest.DynamicTest( "Fletch.IOCTest" )]
     public class it_removes_itself_from_the_ioc_list_on_destruction : MonoBehaviour {
 
-        GameObject ioc_object;
-        IOC ioc;
+        IOCFactory factory = new IOCFactory();
 
         // setup
         void Start () {
+            GameObject ioc = factory.WithNoServices();
 
-            // create a new IOC and attach to the test
-            ioc_object = new GameObject();
-            ioc_object.transform.parent = transform;
-            ioc = ioc_object.AddComponent<IOC>();
+            IntegrationTest.Assert( ( IOC.Directory.Length == 1 ), "shold be exactly 1 IOC containers before destroying the test, but found: " + IOC.Directory.Length );
 
-            // now destroy it
-            GameObject.Destroy( ioc_object );
+            Destroy( ioc );
 
+            // now give the ioc a chance to be destroyed //
         }
 
         // test
         void Update () {
 
-            IntegrationTest.Assert( (IOC.Directory.Length == 0), "should be exactly 0 IOC containers, but found: " + IOC.Directory.Length );
+            // ioc should have been destroyed by now //
+
+            IntegrationTest.Assert( (IOC.Directory.Length == 0), "should be exactly 0 IOC containers after destroying the test, but found: " + IOC.Directory.Length );
 
             IntegrationTest.Pass();
         }
 
         // teardown
         void OnDisable () {
-            GameObject.Destroy( ioc_object );
+            factory.TearDown();
         }
     }
 }

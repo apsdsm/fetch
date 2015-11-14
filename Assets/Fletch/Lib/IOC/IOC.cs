@@ -13,7 +13,7 @@ namespace Fletch
     /// the scene.
     /// 
     /// It will only resolve objects that are children of itself, and it will
-    /// do a search for services when the scene starts. It will not 
+    /// do a search for services when the scene starts. 
     /// </summary>
     public partial class IOC : MonoBehaviour
     {

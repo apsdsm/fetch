@@ -15,6 +15,10 @@ namespace Fletch.Test
         // setup
         void Awake ()
         {
+            // this test involves creating a prefab, which is non-trivial
+            // it would be much better if this could be encapsulated in a helper
+            // class, like the factory, but more formalised.
+
             // create a new IOC and attach to the test
             GameObject ioc_object = new GameObject();
             ioc_object.transform.parent = transform;
@@ -41,9 +45,9 @@ namespace Fletch.Test
         // test
         void Update ()
         {
-            FletchTestService resolved_service = ( FletchTestService ) IOC.Resolve<IFletchTestService>();
+            int count = IOC.Services().Length;
 
-            IntegrationTest.Assert( resolved_service != null, "should be able to access service, but wasn't able to." );
+            IntegrationTest.Assert( count == 1, "should be 1 resolvable service but found: " + count.ToString() );
 
             IntegrationTest.Pass();
         }

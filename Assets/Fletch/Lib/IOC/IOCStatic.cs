@@ -42,5 +42,23 @@ namespace Fletch {
             }
         }
 
+        /// <summary>
+        /// Will provide a list of all service that can be resolved.
+        /// </summary>
+        /// <returns></returns>
+        public static Type[] Services ()
+        {
+            List<Type> services = new List<Type>();
+
+            foreach ( IOC ioc in _IOCDirectory )
+            {
+                if ( ioc.services.Count > 0 )
+                {
+                    services.AddRange( ioc.services.Select( s => s.Key ) );
+                }
+            }
+
+            return services.ToArray();
+        }
     }
 }

@@ -5,17 +5,11 @@ namespace Fletch.Test {
     [IntegrationTest.DynamicTest( "Fletch.IOCTest" )]
     public class it_adds_itself_to_the_ioc_list_on_creation : MonoBehaviour {
 
-        GameObject ioc_object;
-        IOC ioc;
+        IOCFactory factory = new IOCFactory();
 
         // setup
         void Awake () {
-
-            // create a new IOC and attach to the test
-            ioc_object = new GameObject();
-            ioc_object.transform.parent = transform;
-            ioc = ioc_object.AddComponent<IOC>();
-
+            factory.WithNoServices();
         }
 
         // test
@@ -28,7 +22,7 @@ namespace Fletch.Test {
 
         // tear down
         void OnDisable () {
-            GameObject.Destroy( ioc_object );
+            factory.TearDown();
         }
     }
 }
