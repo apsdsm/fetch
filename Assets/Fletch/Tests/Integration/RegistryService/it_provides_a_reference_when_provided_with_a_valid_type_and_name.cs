@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System;
+using Flexo;
 
 namespace Fletch.Test
 {
@@ -10,22 +11,14 @@ namespace Fletch.Test
 
         GameObject registry_object;
         RegistryService registry;
-
         GameObject test_object;
         TestComponent test;
 
         // setup
         void Awake ()
         {
-            // new game object with registry service component
-            registry_object = new GameObject("3");
-            registry_object.transform.parent = transform;
-            registry = registry_object.AddComponent<RegistryService>();
-
-            // new game object with test component
-            test_object = new GameObject("4");
-            test_object.transform.parent = transform;
-            test = test_object.AddComponent<TestComponent>();
+            registry_object = new FlexoGameObject().WithParent( gameObject ).With<RegistryService>( out registry );
+            test_object = new FlexoGameObject().WithParent( gameObject ).With<TestComponent>( out test );
         }
 
         // test
@@ -42,8 +35,8 @@ namespace Fletch.Test
         // teardown
         void OnDisable ()
         {
-            //Destroy( test_object );
-            //Destroy( registry_object );
+            Destroy( test_object );
+            Destroy( registry_object );
         }
     }
 }

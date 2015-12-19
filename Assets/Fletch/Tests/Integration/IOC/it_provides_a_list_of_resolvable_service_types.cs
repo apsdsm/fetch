@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System;
+using Flexo;
 
 namespace Fletch.Test
 {
@@ -8,12 +9,12 @@ namespace Fletch.Test
     public class it_provides_a_list_of_resolvable_service_types : MonoBehaviour
     {
 
-        IOCFactory factory = new IOCFactory();
+        GameObject ioc_object;
 
         // setup
         void Awake ()
         {
-            factory.WithNoServices();
+            ioc_object = new FlexoGameObject().WithParent( gameObject ).With<IOC>();
         }
 
         // test
@@ -29,7 +30,7 @@ namespace Fletch.Test
         // teardown
         void OnDisable ()
         {
-            factory.TearDown();
+            Destroy( ioc_object );
         }
     }
 }

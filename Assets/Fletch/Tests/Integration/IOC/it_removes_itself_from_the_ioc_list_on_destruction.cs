@@ -1,19 +1,19 @@
 ﻿using UnityEngine;
+using Flexo;
 
 namespace Fletch.Test {
 
     [IntegrationTest.DynamicTest( "Fletch.IOCTest" )]
     public class it_removes_itself_from_the_ioc_list_on_destruction : MonoBehaviour {
 
-        IOCFactory factory = new IOCFactory();
-
         // setup
         void Start () {
-            GameObject ioc = factory.WithNoServices();
 
-            IntegrationTest.Assert( ( IOC.Directory.Length == 1 ), "shold be exactly 1 IOC containers before destroying the test, but found: " + IOC.Directory.Length );
+            GameObject ioc_object = new FlexoGameObject().WithParent( gameObject ).With<IOC>();
 
-            Destroy( ioc );
+            IntegrationTest.Assert( ( IOC.Directory.Length == 1 ), "should be exactly 1 IOC containers before destroying the test, but found: " + IOC.Directory.Length );
+
+            Destroy( ioc_object );
 
             // now give the ioc a chance to be destroyed //
         }
@@ -30,7 +30,6 @@ namespace Fletch.Test {
 
         // teardown
         void OnDisable () {
-            factory.TearDown();
         }
     }
 }

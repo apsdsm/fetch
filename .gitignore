@@ -9,8 +9,8 @@
 # Ignore Project Settings
 /ProjectSettings
 
-# Ignore Test Suite
-/Assets/UnityTestTools
+# Ignore vendor directory
+/Assets/Vendor
 
 # Ignore meta files (yes, yes, I know...)
 *.meta

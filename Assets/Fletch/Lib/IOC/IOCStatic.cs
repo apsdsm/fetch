@@ -8,7 +8,7 @@ namespace Fletch {
     /// <summary>
     /// This partial contains the static methods for the IOC. I put them in 
     /// their own file because static methods are so world bendingly horrble
-    /// that they need to be seperated out like this in order for the whole
+    /// that they need to be separated out like this in order for the whole
     /// class not to chew its own face off. This is sad, but true.
     /// </summary>
     partial class IOC {
