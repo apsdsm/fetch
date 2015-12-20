@@ -9,31 +9,31 @@ namespace Fletch
 {
     public class RegistryService : MonoBehaviour, IRegistryService
     {
-        // private structure for holding registrations
-        private struct Registration
-        {
-            public Type type;
-            public string identifier;
-            public object reference;
-        }
 
         // private list of registrations
         private List<Registration> registrations;
 
-        // set up object
+
+        /// <summary>
+        /// Creates a new list to store registrations.
+        /// </summary>
         void Awake ()
         {
             registrations = new List<Registration>();
         }
 
+
         /// <summary>
-        /// Count how many registrations are in the registry.
+        /// Get all registrations as an array.
         /// </summary>
-        /// <returns>Number of registrations</returns>
-        public int Count ()
+        public Registration[] Registrations
         {
-            return registrations.Count;
+            get
+            {
+                return registrations.ToArray();
+            }
         }
+
 
         /// <summary>
         /// Registers a new object in the registry.
@@ -46,18 +46,27 @@ namespace Fletch
             registrations.Add( new Registration() { type = type, identifier = identifier, reference = reference } );
         }
 
+
+        /// <summary>
+        /// Deregisters an existing object from the registry.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="identifier"></param>
+        public void Deregister ( Type type, string identifier )
+        {
+            object reference = registrations.RemoveAll( r => r.type == type && r.identifier == identifier );
+        }
+
+
         /// <summary>
         /// Search for an object of specified type that matches the identifier.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="identifier"></param>
         /// <returns></returns>
-        public T LookUp<T>( string identifier )
+        public T LookUp<T> ( string identifier )
         {
-            object reference = registrations
-                                .Where( r => ( r.type == typeof( T ) ) && ( r.identifier == identifier ) )
-                                .FirstOrDefault<Registration>()
-                                .reference;
+            object reference = registrations.Where( r => ( r.type == typeof( T ) ) && ( r.identifier == identifier )).FirstOrDefault<Registration>().reference;
 
             return (T)reference;
         }

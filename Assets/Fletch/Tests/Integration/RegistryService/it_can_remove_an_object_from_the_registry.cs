@@ -5,7 +5,7 @@ namespace Fletch.Test
 {
 
     [IntegrationTest.DynamicTest( "Fletch.RegistryService" )]
-    public class it_can_add_a_new_object_to_the_registry : MonoBehaviour
+    public class it_can_remove_an_object_from_the_registry : MonoBehaviour
     {
 
         GameObject registry_object;
@@ -28,9 +28,16 @@ namespace Fletch.Test
         {
             registry.Register( test.GetType(), "TestComponent", test );
 
-            int length = registry.Registrations.Length;
+            int first_count = registry.Registrations.Length;
 
-            IntegrationTest.Assert( length == 1, "expected 1 object to be registered, but found: " + length.ToString() );
+            IntegrationTest.Assert( first_count == 1, "expected 1 object to be registered, but found: " + first_count );
+
+            registry.Deregister( test.GetType(), "TestComponent" );
+
+            int second_count = registry.Registrations.Length;
+
+            IntegrationTest.Assert( second_count == 0, "expected 0 objects to be registered, but found: " + second_count );
+
             IntegrationTest.Pass();
         }
 
