@@ -19,7 +19,7 @@ namespace Fletch.Test
             Directory.CreateDirectory( @"Assets/__FletchTests" );
 
             // create a new game object
-            GameObject ioc_prefab = new FlexoGameObject().WithParent( gameObject ).With<IOC>().WithChild( "Foo" ).Where( "Foo" ).Has<FletchTestService>().AsPrefab( @"Assets/__FletchTests/IOC_with_children.prefab" );
+            GameObject ioc_prefab = new FlexoGameObject().WithParent( gameObject ).With<IOCService>().WithChild( "Foo" ).Where( "Foo" ).Has<FletchTestService>().AsPrefab( @"Assets/__FletchTests/IOC_with_children.prefab" );
 
             // add the prefab to the game scene
             ioc_instance = PrefabUtility.InstantiatePrefab( ioc_prefab ) as GameObject;

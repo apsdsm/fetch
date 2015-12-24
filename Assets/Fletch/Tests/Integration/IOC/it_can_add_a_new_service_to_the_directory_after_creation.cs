@@ -7,13 +7,13 @@ namespace Fletch.Test {
     public class it_can_add_a_new_service_to_the_directory_after_creation : MonoBehaviour {
 
         GameObject ioc_object;
-        IOC ioc;
+        IOCService ioc;
         GameObject service_object;
         FletchTestService service;
         
         // setup
         void Awake () {
-            ioc_object = new FlexoGameObject( "IOC" ).With<IOC>( out ioc );
+            ioc_object = new FlexoGameObject( "IOC" ).With<IOCService>( out ioc );
         }
 
         // test

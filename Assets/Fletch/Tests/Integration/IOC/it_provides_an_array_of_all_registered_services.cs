@@ -1,12 +1,10 @@
 ﻿using UnityEngine;
-using System;
 using Flexo;
 
 namespace Fletch.Test
 {
-
     [IntegrationTest.DynamicTest( "Fletch.IOCTest" )]
-    public class it_provides_an_array_of_resolvable_service_types : MonoBehaviour
+    public class it_provides_an_array_of_all_registered_services : MonoBehaviour
     {
 
         GameObject ioc_object;
@@ -22,9 +20,9 @@ namespace Fletch.Test
         void Update ()
         {
 
-            Type[] types = ioc_service.RegisteredServiceTypes();
-            
-            IntegrationTest.Assert( types != null, "should be able to get a list of services" );
+            Component[] services = ioc_service.RegisteredServices();
+
+            IntegrationTest.Assert( services != null, "should be able to get a list of services" );
             IntegrationTest.Pass();
         }
 

@@ -9,14 +9,14 @@ namespace Fletch.Test
     public class it_provides_a_reference_to_a_service_when_provided_with_a_resolvable_type : MonoBehaviour
     {
         GameObject ioc_object;
-        IOC ioc;
+        IOCService ioc;
         FletchTestService service;
 
         // setup
         void Awake ()
         {
             // new IOC object with service
-            ioc_object = new FlexoGameObject().WithParent( gameObject ).With<IOC>( out ioc ).WithChild( "Foo" ).Where( "Foo" ).Has<FletchTestService>( out service );
+            ioc_object = new FlexoGameObject().WithParent( gameObject ).With<IOCService>( out ioc ).WithChild( "Foo" ).Where( "Foo" ).Has<FletchTestService>( out service );
 
             // add service
             ioc.AddService( typeof( IFletchTestService ), service );

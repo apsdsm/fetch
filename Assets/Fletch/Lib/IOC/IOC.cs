@@ -3,96 +3,62 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Fletch
-{
+namespace Fletch {
 
     /// <summary>
-    /// IOC is an IOC Container that can be used to resolve reference to, and
-    /// crete new instances of objects stored in the game scene. The container
-    /// is a game component itself, so it needs to be attached to something in
-    /// the scene.
-    /// 
-    /// It will only resolve objects that are children of itself, and it will
-    /// do a search for services when the scene starts. 
+    /// This partial contains the static methods for the IOC. I put them in 
+    /// their own file because static methods are so world bendingly horrible
+    /// that they need to be separated out like this in order for the whole
+    /// class not to chew its own face off. This is sad, but true.
     /// </summary>
-    public partial class IOC : MonoBehaviour
-    {
+    public class IOC {
 
         /// <summary>
-        /// Dictionary of references to services stored by the IOC.
+        /// This is a static cache of all the IOC containers. It's used so we 
+        /// can reference the IOC container without having to perform any kind 
+        /// of service location.
         /// </summary>
-        private Dictionary<Type, Component> services = new Dictionary<Type, Component>();
+        public static List<IOCService> _IOCDirectory = new List<IOCService>();
 
 
         /// <summary>
-        /// Adds this object to the static directory when created.
+        /// Returns a reference to a service that implements T.
         /// </summary>
-        void Awake ()
-        {
-            if (!_IOCDirectory.Contains( this ))
+        /// <returns>A resolved instance of type T</returns>
+        public static Component Resolve<T>() {
+            IOCService ioc = _IOCDirectory.First();
+            return ioc.Resolve<T>();
+        }
+
+
+        /// <summary>
+        /// Provides an array of all the IOCs that are currently registered in 
+        /// the directory.
+        /// </summary>
+        public static IOCService[] Directory {
+            get 
             {
-                IOC._IOCDirectory.Add( this );
-                Populate();
+                return _IOCDirectory.ToArray();
             }
         }
 
-
         /// <summary>
-        /// Removes this object from the static directory list when destroyed.
+        /// Will provide a list of all service that can be resolved.
         /// </summary>
-        void OnDestroy () {
-            IOC._IOCDirectory.Remove( this );
-        }
-
-        /// <summary>
-        /// Adds the specified service to the service directory.
-        /// </summary>
-        /// <param name="type"></param>
-        /// <param name="service"></param>
-        public void AddService ( Type type, Component service ) 
+        /// <returns></returns>
+        public static Type[] Services ()
         {
-            services.Add( type, service );
-        }
+            List<Type> services = new List<Type>();
 
-        /// <summary>
-        /// Looks through each child object, seeking for classes that implement
-        /// a interface that ends with 'Service', and adding those to the 
-        /// service directory.
-        /// </summary>
-        private void Populate ()
-        {
-            foreach (Transform child in transform)
+            foreach ( IOCService ioc in _IOCDirectory )
             {
-                foreach (Component component in child.GetComponents<Component>())
+                if ( ioc.services.Count > 0 )
                 {
-                    foreach (Type type in component.GetType().GetInterfaces())
-                    {
-                        if (type.ToString().EndsWith( "Service" ))
-                        {
-                            AddService( type, component );
-                        }
-                    }
+                    services.AddRange( ioc.services.Select( s => s.Key ) );
                 }
             }
-        }
 
-
-        /// <summary>
-        /// Looks for and returns a reference to a component that implement T.
-        /// </summary>
-        /// <returns>A reference to a component implementing T or null</returns>
-        private Component _Resolve<T> ()
-        {
-            try
-            {
-                Component service = services[ typeof( T ) ];
-                return service;
-            }
-            catch
-            {
-                return null;
-            }
+            return services.ToArray();
         }
     }
 }
-

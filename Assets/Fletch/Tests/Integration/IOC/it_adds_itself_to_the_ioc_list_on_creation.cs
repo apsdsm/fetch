@@ -11,7 +11,7 @@ namespace Fletch.Test {
         // setup
         void Awake ()
         {
-            ioc_object = new FlexoGameObject( "IOC" ).With<IOC>();
+            ioc_object = new FlexoGameObject( "IOC" ).With<IOCService>();
         }
 
         // test

@@ -9,7 +9,7 @@ namespace Fletch.Test {
         // setup
         void Start () {
 
-            GameObject ioc_object = new FlexoGameObject().WithParent( gameObject ).With<IOC>();
+            GameObject ioc_object = new FlexoGameObject().WithParent( gameObject ).With<IOCService>();
 
             IntegrationTest.Assert( ( IOC.Directory.Length == 1 ), "should be exactly 1 IOC containers before destroying the test, but found: " + IOC.Directory.Length );
 
