@@ -3,7 +3,7 @@ using Flexo;
 
 namespace Fletch.Test {
 
-    [IntegrationTest.DynamicTest( "Fletch.IOCTest" )]
+    [IntegrationTest.DynamicTest( "Fletch.IOCServiceTest" )]
     public class it_adds_itself_to_the_ioc_list_on_creation : MonoBehaviour {
 
         GameObject ioc_object;

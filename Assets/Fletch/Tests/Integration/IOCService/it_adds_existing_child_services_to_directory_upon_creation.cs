@@ -6,11 +6,12 @@ using Flexo;
 namespace Fletch.Test
 {
 
-    [IntegrationTest.DynamicTest( "Fletch.IOCTest" )]
+    [IntegrationTest.DynamicTest( "Fletch.IOCServiceTest" )]
     public class it_adds_existing_child_services_to_directory_upon_creation : MonoBehaviour
     {
 
         GameObject ioc_instance;
+        IOCService ioc_service;
 
         // setup
         void Awake ()
@@ -23,12 +24,13 @@ namespace Fletch.Test
 
             // add the prefab to the game scene
             ioc_instance = PrefabUtility.InstantiatePrefab( ioc_prefab ) as GameObject;
+            ioc_service = ioc_instance.GetComponent<IOCService>();
         }
 
         // test
         void Update ()
         {
-            int serviceCount = IOC.Services().Length;
+            int serviceCount = ioc_service.RegisteredServices().Length;
 
             IntegrationTest.Assert( serviceCount == 1, "should be 1 resolvable service but found: " + serviceCount.ToString() );
 

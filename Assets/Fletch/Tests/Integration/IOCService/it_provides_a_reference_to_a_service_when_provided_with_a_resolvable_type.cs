@@ -5,7 +5,7 @@ using Flexo;
 namespace Fletch.Test
 {
 
-    [IntegrationTest.DynamicTest( "Fletch.IOCTest" )]
+    [IntegrationTest.DynamicTest( "Fletch.IOCServiceTest" )]
     public class it_provides_a_reference_to_a_service_when_provided_with_a_resolvable_type : MonoBehaviour
     {
         GameObject ioc_object;

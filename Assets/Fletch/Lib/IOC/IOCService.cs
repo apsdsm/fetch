@@ -30,9 +30,8 @@ namespace Fletch
         /// </summary>
         void Awake ()
         {
-            if (!IOC._IOCDirectory.Contains( this ))
+            if ( IOC.RegisterContainer( this ) )
             {
-                IOC._IOCDirectory.Add( this );
                 Populate();
             }
         }
@@ -42,7 +41,7 @@ namespace Fletch
         /// Removes this object from the static directory list when destroyed.
         /// </summary>
         void OnDestroy () {
-            IOC._IOCDirectory.Remove( this );
+            IOC.DeregisterContainer( this );
         }
 
 

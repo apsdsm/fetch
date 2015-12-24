@@ -1,30 +1,30 @@
 ﻿using UnityEngine;
-using System;
+using UnityEditor;
+using System.IO;
 using Flexo;
 
 namespace Fletch.Test
 {
 
     [IntegrationTest.DynamicTest( "Fletch.IOCTest" )]
-    public class it_provides_an_array_of_resolvable_service_types : MonoBehaviour
+    public class it_provides_an_iocservice_instance : MonoBehaviour
     {
 
         GameObject ioc_object;
-        IOCService ioc_service;
 
         // setup
         void Awake ()
         {
-            ioc_object = new FlexoGameObject().WithParent( gameObject ).With<IOCService>( out ioc_service );
+            ioc_object = new FlexoGameObject( "IOC" ).With<IOCService>();
         }
 
         // test
         void Update ()
         {
+            IOCService service = IOC.Instance();
 
-            Type[] types = ioc_service.RegisteredServiceTypes();
-            
-            IntegrationTest.Assert( types != null, "should be able to get a list of services" );
+            IntegrationTest.Assert( service != null, "should provide instance of IOC Service but got null." );
+
             IntegrationTest.Pass();
         }
 

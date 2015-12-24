@@ -18,8 +18,33 @@ namespace Fletch {
         /// can reference the IOC container without having to perform any kind 
         /// of service location.
         /// </summary>
-        public static List<IOCService> _IOCDirectory = new List<IOCService>();
+        private static List<IOCService> _IOCDirectory = new List<IOCService>();
 
+
+        /// <summary>
+        /// Adds a new IOC Container to a static directory of containers.
+        /// </summary>
+        /// <param name="service">container to add.</param>
+        /// <returns>true if container was added</returns>
+        public static bool RegisterContainer ( IOCService service )
+        {
+            if ( !IOC._IOCDirectory.Contains( service ) )
+            {
+                _IOCDirectory.Add( service );
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Remove an existing service from the directory of containers.
+        /// </summary>
+        /// <param name="service">service to remove</param>
+        public static void DeregisterContainer ( IOCService service )
+        {
+            _IOCDirectory.Remove( service );
+        }
 
         /// <summary>
         /// Returns a reference to a service that implements T.
@@ -42,20 +67,28 @@ namespace Fletch {
             }
         }
 
+
         /// <summary>
-        /// Will provide a list of all service that can be resolved.
+        /// Returns an instance stored in the IOC directory.
         /// </summary>
         /// <returns></returns>
-        public static Type[] Services ()
+        public static IOCService Instance ()
         {
-            List<Type> services = new List<Type>();
+            return _IOCDirectory.First();
+        }
+
+     
+        /// <summary>
+        /// Create an array of all services stored in all ioc containers.
+        /// </summary>
+        /// <returns>Array of service references</returns>
+        public static Component[] RegisteredServices ()
+        {
+            List<Component> services = new List<Component>();
 
             foreach ( IOCService ioc in _IOCDirectory )
             {
-                if ( ioc.services.Count > 0 )
-                {
-                    services.AddRange( ioc.services.Select( s => s.Key ) );
-                }
+                services.AddRange( ioc.RegisteredServices() );
             }
 
             return services.ToArray();

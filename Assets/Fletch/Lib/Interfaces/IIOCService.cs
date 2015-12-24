@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Fletch.Interfaces
 {
-    interface IIOCService
+    public interface IIOCService
     {
         /// <summary>
         /// Add a new service to the IOC Container. This method can be used to
