@@ -54,13 +54,22 @@ namespace Fletch
             {
                 foreach ( Reservation reservation in waitingList )
                 {
-                    reservation.setter.Invoke( reservation.reserver, new object[] { reference } );
+                    SendReferenceToReserver( reservation.setter, reservation.reserver, reference );
                     reservations.Remove( reservation );
                 }
             }
         }
 
-
+        /// <summary>
+        /// Will send the specified reference to the reserver.
+        /// </summary>
+        /// <param name="setter">setter method to use</param>
+        /// <param name="reserver">the object to send the method invocation to</param>
+        /// <param name="reference">the object reference that will be sent in the invocation</param>
+        private void SendReferenceToReserver ( MethodInfo setter, object target, object reference )
+        {
+            setter.Invoke( target, new object[] { reference } );
+        }
 
         /// <summary>
         /// Deregisters an existing object from the registry.
@@ -71,6 +80,7 @@ namespace Fletch
         {
             object reference = registrations.RemoveAll( r => r.type == type && r.identifier == identifier );
         }
+
 
         /// <summary>
         /// First checks to see if the object already exists in the list of registered components.
@@ -87,6 +97,13 @@ namespace Fletch
             if ( setterMethod == null )
             {
                 throw new SetterNotFoundException( "no setter was found with the name " + name );
+            }
+
+            T lookUp = LookUp<T>( name );
+
+            if ( lookUp != null )
+            {
+                SendReferenceToReserver( setterMethod, from, lookUp );
             }
             else
             {
