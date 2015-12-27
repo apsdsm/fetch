@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Fletch.Interfaces
+namespace Fletch
 {
     /// <summary>
     /// Provides a registry that objects can register themselves with. This allows
