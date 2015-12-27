@@ -5,7 +5,7 @@ namespace Fletch.Test
 {
 
     [IntegrationTest.DynamicTest( "Fletch.RegistryService" )]
-    public class it_can_remove_an_object_from_the_registry : MonoBehaviour
+    public class it_removes_an_object_from_the_registry : MonoBehaviour
     {
 
         GameObject registry_object;

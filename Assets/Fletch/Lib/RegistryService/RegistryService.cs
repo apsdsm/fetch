@@ -1,8 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
-using Fletch.Interfaces;
 using System;
 
 namespace Fletch
@@ -13,6 +13,9 @@ namespace Fletch
         // private list of registrations
         private List<Registration> registrations;
 
+        // private list of reservations
+        private List<Reservation> reservations;
+
 
         /// <summary>
         /// Creates a new list to store registrations.
@@ -20,16 +23,15 @@ namespace Fletch
         void Awake ()
         {
             registrations = new List<Registration>();
+            reservations = new List<Reservation>();
         }
 
 
         /// <summary>
         /// Get all registrations as an array.
         /// </summary>
-        public Registration[] Registrations
-        {
-            get
-            {
+        public Registration[] Registrations {
+            get {
                 return registrations.ToArray();
             }
         }
@@ -44,7 +46,19 @@ namespace Fletch
         public void Register ( Type type, string identifier, object reference )
         {
             registrations.Add( new Registration() { type = type, identifier = identifier, reference = reference } );
+
+            // check to see if anybody wants this registration
+            Reservation[] waitingList = reservations.Where( r => r.identifier == identifier && r.type == type ).ToArray();
+
+            if ( waitingList.Length > 0 )
+            {
+                foreach ( Reservation reservation in waitingList )
+                {
+                    reservation.setter.Invoke( reservation.reserver, new object[] { reference } );
+                }
+            }
         }
+
 
 
         /// <summary>
@@ -55,6 +69,28 @@ namespace Fletch
         public void Deregister ( Type type, string identifier )
         {
             object reference = registrations.RemoveAll( r => r.type == type && r.identifier == identifier );
+        }
+
+        /// <summary>
+        /// First checks to see if the object already exists in the list of registered components.
+        /// If so, assigns that component to the reservation. If not, will create a new reservation
+        /// containing the details that were passed to the method.
+        /// </summary>
+        /// <typeparam name="T">Type of object</typeparam>
+        /// <param name="name">name the object will have</param>
+        /// <param name="reservation">reference to variable that will be filled</param>
+        public void Reserve<T>( string name, object from )
+        {
+            MethodInfo setterMethod = from.GetType().GetMethod( "set_" + name );
+
+            if ( setterMethod == null )
+            {
+                throw new SetterNotFoundException( "no setter was found with the name " + name );
+            }
+            else
+            {
+                reservations.Add( new Reservation() { identifier = name, type = typeof( T ), reserver = from, setter = setterMethod } );
+            }
         }
 
 

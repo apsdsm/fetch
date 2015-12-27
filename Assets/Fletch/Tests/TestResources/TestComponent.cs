@@ -3,7 +3,7 @@
 
 namespace Fletch.Test
 {
-    class TestComponent : MonoBehaviour
+    public class TestComponent : MonoBehaviour
     {
     }
 }
