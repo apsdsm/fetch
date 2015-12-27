@@ -55,6 +55,7 @@ namespace Fletch
                 foreach ( Reservation reservation in waitingList )
                 {
                     reservation.setter.Invoke( reservation.reserver, new object[] { reference } );
+                    reservations.Remove( reservation );
                 }
             }
         }
