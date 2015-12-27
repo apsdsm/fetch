@@ -36,6 +36,15 @@ namespace Fletch
 
 
         /// <summary>
+        /// Make a reservation to receive a reference to an object later on.
+        /// </summary>
+        /// <typeparam name="T">The type of reference to return</typeparam>
+        /// <param name="identifier">the identifier assigned to the reference</param>
+        /// <param name="reserver">the object that is making the reservation</param>
+        void Reserve<T>( string identifier, object reserver );
+
+
+        /// <summary>
         /// Provide a getter that returns an array of all the current registrations.
         /// </summary>
         Registration[] Registrations
