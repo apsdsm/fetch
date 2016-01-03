@@ -4,7 +4,7 @@ using Flexo;
 namespace Fletch.Test {
 
     [IntegrationTest.DynamicTest( "Fletch.IOCServiceTest" )]
-    public class it_can_add_a_new_service_to_the_directory_after_creation : MonoBehaviour {
+    public class it_can_add_a_new_entry_to_the_directory_after_creation : MonoBehaviour {
 
         GameObject ioc_object;
         IOCService ioc_service;

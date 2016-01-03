@@ -7,7 +7,7 @@ namespace Fletch.Test
 {
 
     [IntegrationTest.DynamicTest( "Fletch.IOCServiceTest" )]
-    public class it_adds_existing_child_services_to_directory_upon_creation : MonoBehaviour
+    public class it_adds_existing_children_to_directory_upon_creation : MonoBehaviour
     {
 
         GameObject ioc_instance;

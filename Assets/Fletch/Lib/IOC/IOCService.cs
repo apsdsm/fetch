@@ -68,7 +68,9 @@ namespace Fletch
                 {
                     foreach (Type type in component.GetType().GetInterfaces())
                     {
-                        if (type.ToString().EndsWith( "Service" ))
+                        string typeString = type.ToString();
+
+                        if (typeString.EndsWith( "Service" ) || typeString.EndsWith( "Factory" ) || typeString.EndsWith( "Manager") )
                         {
                             AddService( type, component );
                         }
