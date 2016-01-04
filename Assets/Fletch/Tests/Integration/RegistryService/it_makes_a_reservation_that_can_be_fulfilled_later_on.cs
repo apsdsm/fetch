@@ -5,7 +5,7 @@ namespace Fletch.Test
 {
 
     [IntegrationTest.DynamicTest( "Fletch.RegistryService" )]
-    public class it_provides_a_reservation_for_an_object_that_is_registered_later_on : MonoBehaviour
+    public class it_makes_a_reservation_that_can_be_fulfilled_later_on : MonoBehaviour
     {
 
         GameObject registry_object;
