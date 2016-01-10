@@ -1,41 +1,26 @@
 ﻿using UnityEngine;
 using Flexo;
 
-namespace Fletch.Test
+namespace Fletch.Test.Integration.RegistryServiceTests
 {
 
     [IntegrationTest.DynamicTest( "Fletch.RegistryService" )]
-    public class it_provides_a_reference_when_provided_with_a_valid_type_and_name : MonoBehaviour
+    public class it_provides_a_reference_when_provided_with_a_valid_type_and_name : registry_service_test
     {
-
-        GameObject registry_object;
-        RegistryService registry;
         GameObject test_object;
-        TestComponent test;
+        BazComponent baz_component;
 
-        // setup
-        void Awake ()
-        {
-            registry_object = new FlexoGameObject().WithParent( gameObject ).With<RegistryService>( out registry );
-            test_object = new FlexoGameObject().WithParent( gameObject ).With<TestComponent>( out test );
-        }
-
-        // test
         void Update ()
         {
-            registry.Register( test.GetType(), "Foo", test );
+            test_object = new FlexoGameObject().WithParent( gameObject ).With<BazComponent>( out baz_component );
 
-            TestComponent result = registry.LookUp<TestComponent>( "Foo" );
+            registry.Register( baz_component.GetType(), "BazComponent", baz_component );
+
+            BazComponent result = registry.LookUp<BazComponent>( "BazComponent" );
 
             IntegrationTest.Assert( result != null, "expected to fund reference to object but got null" );
             IntegrationTest.Pass();
-        }
-
-        // teardown
-        void OnDisable ()
-        {
-            Destroy( test_object );
-            Destroy( registry_object );
+            registry.Flush();
         }
     }
 }

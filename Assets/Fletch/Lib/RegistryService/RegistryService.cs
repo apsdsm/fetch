@@ -18,7 +18,7 @@ namespace Fletch
 
 
         /// <summary>
-        /// Creates a new list to store registrations.
+        /// When initialized, flush system to create new lists.
         /// </summary>
         void Awake ()
         {
@@ -61,7 +61,16 @@ namespace Fletch
         }
 
         /// <summary>
-        /// Will send the specified reference to the reserver.
+        /// Deletes any existing registrations and reservations.
+        /// </summary>
+        public void Flush ()
+        {
+            registrations.Clear();
+            reservations.Clear();
+        }
+
+        /// <summary>
+        /// Will send the specified reference to the object that made the reservation.
         /// </summary>
         /// <param name="setter">setter method to use</param>
         /// <param name="reserver">the object to send the method invocation to</param>

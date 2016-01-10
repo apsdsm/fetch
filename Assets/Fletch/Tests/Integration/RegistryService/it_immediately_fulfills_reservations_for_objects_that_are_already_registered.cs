@@ -1,57 +1,43 @@
 ﻿using UnityEngine;
 using Flexo;
 
-namespace Fletch.Test
+namespace Fletch.Test.Integration.RegistryServiceTests
 {
 
     [IntegrationTest.DynamicTest( "Fletch.RegistryService" )]
-    public class it_immediately_fulfills_reservations_for_objects_that_are_already_registered : MonoBehaviour
+    public class it_immediately_fulfills_reservations_for_objects_that_are_already_registered : registry_service_test
     {
 
-        GameObject registry_object;
-        RegistryService registry;
-
         GameObject test_object;
-        TestComponent test_component;
-
-        TestComponent reserved_test_component;
+        BazComponent baz_component;
+        BazComponent reserved_baz_component;
 
         // public setter that will be called by Registry service
-        public TestComponent Bar
+        public BazComponent BazComponent
         {
-            set { this.reserved_test_component = value; }
+            set
+            {
+                this.reserved_baz_component = value;
+            }
         }
 
-        // setup
-        void Awake ()
-        {
-            // new game object with registry service component
-            registry_object = new FlexoGameObject( "Foo" ).WithParent( gameObject ).With<RegistryService>( out registry );
-        }
-
-        // test
-        void Update ()
+        void Test ()
         {
             // make new object with the test component
-            test_object = new FlexoGameObject().WithParent( gameObject ).With<TestComponent>( out test_component );
+            test_object = new FlexoGameObject().WithParent( gameObject ).With<BazComponent>( out baz_component );
 
             // register the test component
-            registry.Register( test_component.GetType(), "Bar", test_component );
+            registry.Register( baz_component.GetType(), "BazComponent", baz_component );
 
             // create new reference and make a reservation
-            registry.Reserve<TestComponent>( "Bar", this );
+            registry.Reserve<BazComponent>( "BazComponent", this );
             
             // reservation should have been fulfilled automatically
-            IntegrationTest.Assert( reserved_test_component != null, "reservation should have been fulfilled immediately" );
-            IntegrationTest.Assert( reserved_test_component == test_component, "reservation should be same as test object" );
+            IntegrationTest.Assert( reserved_baz_component != null, "reservation should have been fulfilled immediately" );
+            IntegrationTest.Assert( reserved_baz_component == baz_component, "reservation should be same as test object" );
             IntegrationTest.Pass();
-        }
+            registry.Flush();
 
-        // teardown
-        void OnDisable ()
-        {
-            Destroy( registry_object );
-            Destroy( test_object );
         }
     }
 }

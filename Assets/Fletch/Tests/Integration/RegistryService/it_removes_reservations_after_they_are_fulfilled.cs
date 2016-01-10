@@ -1,67 +1,51 @@
 ﻿using UnityEngine;
 using Flexo;
 
-namespace Fletch.Test
+namespace Fletch.Test.Integration.RegistryServiceTests
 {
 
     [IntegrationTest.DynamicTest( "Fletch.RegistryService" )]
-    public class it_removes_reservations_after_they_are_fulfilled : MonoBehaviour
+    public class it_removes_reservations_after_they_are_fulfilled : registry_service_test
     {
-
-        GameObject registry_object;
-        RegistryService registry;
-
         GameObject test_object;
-        TestComponent test_component;
+        BazComponent baz_component;
+        BazComponent reserved_baz_component;
 
-        TestComponent reserved_test_component;
-
-        int timesCalledSetter = 0;
+        int times_setter_called = 0;
 
         // public setter that will be called by Registry service
-        public TestComponent Bar
+        public BazComponent BazComponent
         {
             set {
-                this.timesCalledSetter++;
-                this.reserved_test_component = value;
+                this.times_setter_called++;
+                this.reserved_baz_component = value;
             }
         }
 
-        // setup
-        void Awake ()
+        public override void SetUp ()
         {
-            // new game object with registry service component
-            registry_object = new FlexoGameObject( "Foo" ).WithParent( gameObject ).With<RegistryService>( out registry );
+            base.SetUp();
+
+            test_object = new FlexoGameObject().WithParent( gameObject ).With<BazComponent>( out baz_component );
         }
 
-        // test
-        void Update ()
+        void Test ()
         {
             // create new reference and make a reservation
-            registry.Reserve<TestComponent>( "Bar", this );
+            registry.Reserve<BazComponent>( "BazComponent", this );
 
             // at this point reservation should not be filled
-            IntegrationTest.Assert( reserved_test_component == null, "reservation should be null before requested component is registered" );
-
-            // make new object with the test component
-            test_object = new FlexoGameObject().WithParent( gameObject ).With<TestComponent>( out test_component );
+            IntegrationTest.Assert( reserved_baz_component == null, "target component should be null before requested component is registered" );
 
             // register the test component, deregister it, and register it again
-            registry.Register( test_component.GetType(), "Bar", test_component );
-            registry.Deregister( test_component.GetType(), "Bar" );
-            registry.Register( test_component.GetType(), "Bar", test_component );
+            registry.Register( baz_component.GetType(), "BazComponent", baz_component );
+            registry.Deregister( baz_component.GetType(), "BazComponent" );
+            registry.Register( baz_component.GetType(), "BazComponent", baz_component );
 
-            // reservation should have been fulfilled automatically
-            IntegrationTest.Assert( timesCalledSetter == 1, "setter should have been called 1 time but was called " + timesCalledSetter.ToString() + " times" );
-
+            // reservation method should only have been called once
+            IntegrationTest.Assert( times_setter_called == 1, "setter should have been called 1 time but was called " + times_setter_called.ToString() + " times" );
             IntegrationTest.Pass();
-        }
-
-        // teardown
-        void OnDisable ()
-        {
-            Destroy( registry_object );
-            Destroy( test_object );
+            registry.Flush();
         }
     }
 }

@@ -1,43 +1,28 @@
 ﻿using UnityEngine;
 using Flexo;
 
-namespace Fletch.Test
+namespace Fletch.Test.Integration.RegistryServiceTests
 {
 
     [IntegrationTest.DynamicTest( "Fletch.RegistryService" )]
-    public class it_throws_an_exception_if_setter_is_not_found_for_reservation : MonoBehaviour
+    public class it_throws_an_exception_if_setter_is_not_found_for_reservation : registry_service_test
     {
-
-        GameObject registry_object;
-        RegistryService registry;
-
-
-        // setup
-        void Awake ()
-        {
-            // new game object with registry service component
-            registry_object = new FlexoGameObject( "Foo" ).WithParent( gameObject ).With<RegistryService>( out registry );
-        }
-
-        // test
-        void Update ()
+        void Test ()
         {
             try
             {
-                registry.Reserve<TestComponent>( "NotValid", this );
+                registry.Reserve<BazComponent>( "NotValid", this );
 
             }
             catch ( SetterNotFoundException e )
             {
                 IntegrationTest.Assert( e.Message == "no setter was found with the name NotValid", "wrong message in exception: " + e.Message );
                 IntegrationTest.Pass();
-            }            
-        }
-
-        // teardown
-        void OnDisable ()
-        {
-            Destroy( registry_object );
+            }
+            finally
+            {
+                registry.Flush();
+            }
         }
     }
 }

@@ -27,6 +27,12 @@ namespace Fletch
 
 
         /// <summary>
+        /// Remove all registered components and reservations from the registry.
+        /// </summary>
+        void Flush ();
+
+
+        /// <summary>
         /// Return a reference currently stored in the registry.
         /// </summary>
         /// <typeparam name="T">The type of reference to return</typeparam>
@@ -47,7 +53,6 @@ namespace Fletch
         /// <summary>
         /// Provide a getter that returns an array of all the current registrations.
         /// </summary>
-        Registration[] Registrations
-        { get; }
+        Registration[] Registrations { get; }
     }
 }

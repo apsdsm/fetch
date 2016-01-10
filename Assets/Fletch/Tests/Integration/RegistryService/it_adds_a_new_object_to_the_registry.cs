@@ -1,44 +1,33 @@
 ﻿using UnityEngine;
 using Flexo;
 
-namespace Fletch.Test
+namespace Fletch.Test.Integration.RegistryServiceTests
 {
 
     [IntegrationTest.DynamicTest( "Fletch.RegistryService" )]
-    public class it_adds_a_new_object_to_the_registry : MonoBehaviour
+    public class it_adds_a_new_object_to_the_registry : registry_service_test
     {
 
-        GameObject registry_object;
-        RegistryService registry;
         GameObject test_object;
-        TestComponent test;
+        BazComponent baz_component;
 
-        // setup
-        void Awake ()
+        public override void SetUp ()
         {
-            // new game object with registry service component
-            registry_object = new FlexoGameObject( "Foo" ).WithParent( gameObject ).With<RegistryService>( out registry );
+            base.SetUp();
 
-            // new game object with test component
-            test_object = new FlexoGameObject( "Bar" ).WithParent( gameObject ).With<TestComponent>( out test );
+            test_object = new FlexoGameObject( "Bar" ).WithParent( gameObject ).With<BazComponent>( out baz_component );
         }
 
-        // test
-        void Update ()
+        void Test ()
         {
-            registry.Register( test.GetType(), "TestComponent", test );
+            registry.Register( baz_component.GetType(), "BazComponent", baz_component );
 
             int length = registry.Registrations.Length;
 
             IntegrationTest.Assert( length == 1, "expected 1 object to be registered, but found: " + length.ToString() );
             IntegrationTest.Pass();
-        }
 
-        // teardown
-        void OnDisable ()
-        {
-            Destroy( registry_object );
-            Destroy( test_object );
+            registry.Flush();
         }
     }
 }

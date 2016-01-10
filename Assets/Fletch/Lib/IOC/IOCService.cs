@@ -18,49 +18,15 @@ namespace Fletch
     public class IOCService : MonoBehaviour, IIOCService
     {
 
-        /// <summary>
-        /// Dictionary of references to services stored by the IOC.
-        /// </summary>
-        public Dictionary<Type, Component> services = new Dictionary<Type, Component>();
-
-
-        /// <summary>
-        /// Adds this object to the static directory when created.
-        /// </summary>
-        void Awake ()
-        {
-            if ( IOC.RegisterContainer( this ) )
-            {
-                Populate();
-            }
-        }
-
-
-        /// <summary>
-        /// Removes this object from the static directory list when destroyed.
-        /// </summary>
-        void OnDestroy () {
-            IOC.DeregisterContainer( this );
-        }
-
-
-        /// <summary>
-        /// Adds the specified service to the service directory.
-        /// </summary>
-        /// <param name="type"></param>
-        /// <param name="service"></param>
-        public void AddService ( Type type, Component service ) 
-        {
-            services.Add( type, service );
-        }
-
+        // list of the services that are attached to this IOC Container
+        private List<ServiceReference> services = new List<ServiceReference>();
 
         /// <summary>
         /// Looks through each child object, seeking for classes that implement
         /// a interface that ends with 'Service', and adding those to the 
         /// service directory.
         /// </summary>
-        private void Populate ()
+        public void Populate ()
         {
             foreach (Transform child in transform)
             {
@@ -72,7 +38,12 @@ namespace Fletch
 
                         if (typeString.EndsWith( "Service" ) || typeString.EndsWith( "Factory" ) || typeString.EndsWith( "Manager") )
                         {
-                            AddService( type, component );
+
+                            ServiceReference serviceReference = new ServiceReference();
+                            serviceReference.type = type;
+                            serviceReference.reference = component;
+
+                            services.Add( serviceReference );
                         }
                     }
                 }
@@ -81,40 +52,14 @@ namespace Fletch
 
 
         /// <summary>
-        /// Looks for and returns a reference to a component that implement T.
+        /// Return array of all services in this container.
         /// </summary>
-        /// <returns>A reference to a component implementing T or null</returns>
-        public Component Resolve<T> ()
+        public ServiceReference[] Services
         {
-            try
+            get
             {
-                Component service = services[ typeof( T ) ];
-                return service;
+                return services.ToArray();
             }
-            catch
-            {
-                return null;
-            }
-        }
-
-
-        /// <summary>
-        /// Provide an array that contains references to all the registered services.
-        /// </summary>
-        /// <returns>array of component references.</returns>
-        public Component[] RegisteredServices ()
-        {
-            return services.Values.ToArray();
-        }
-
-
-        /// <summary>
-        /// Provide an array that contains all the registered service types.
-        /// </summary>
-        /// <returns>array of types</returns>
-        public Type[] RegisteredServiceTypes ()
-        {
-            return services.Keys.ToArray();
         }
     }
 }

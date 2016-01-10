@@ -1,30 +1,26 @@
 ﻿using UnityEngine;
 using Flexo;
 
-namespace Fletch.Test
+namespace Fletch.Test.Integration.RegistryServiceTests
 {
 
     [IntegrationTest.DynamicTest( "Fletch.RegistryService" )]
-    public class it_removes_an_object_from_the_registry : MonoBehaviour
+    public class it_removes_an_object_from_the_registry : registry_service_test
     {
-
-        GameObject registry_object;
-        RegistryService registry;
         GameObject test_object;
-        TestComponent test;
+        BazComponent test;
 
         // setup
-        void Awake ()
+        public override void SetUp ()
         {
-            // new game object with registry service component
-            registry_object = new FlexoGameObject( "Foo" ).WithParent( gameObject ).With<RegistryService>( out registry );
+            base.SetUp();
 
             // new game object with test component
-            test_object = new FlexoGameObject( "Bar" ).WithParent( gameObject ).With<TestComponent>( out test );
+            test_object = new FlexoGameObject( "Bar" ).WithParent( gameObject ).With<BazComponent>( out test );
         }
 
         // test
-        void Update ()
+        void Test ()
         {
             registry.Register( test.GetType(), "TestComponent", test );
 
@@ -39,13 +35,9 @@ namespace Fletch.Test
             IntegrationTest.Assert( second_count == 0, "expected 0 objects to be registered, but found: " + second_count );
 
             IntegrationTest.Pass();
+
+            registry.Flush();
         }
 
-        // teardown
-        void OnDisable ()
-        {
-            Destroy( registry_object );
-            Destroy( test_object );
-        }
     }
 }

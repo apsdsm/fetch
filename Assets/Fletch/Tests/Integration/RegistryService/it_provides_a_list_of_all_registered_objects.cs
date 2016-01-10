@@ -2,35 +2,18 @@
 using System;
 using Flexo;
 
-namespace Fletch.Test
+namespace Fletch.Test.Integration.RegistryServiceTests
 {
 
     [IntegrationTest.DynamicTest( "Fletch.RegistryService" )]
-    public class it_provides_a_list_of_all_registered_objects : MonoBehaviour
+    public class it_provides_a_list_of_all_registered_objects : registry_service_test
     {
-
-        GameObject registry_object;
-        RegistryService registry;
-
-        // setup
-        void Awake ()
+        void Test ()
         {
-            registry_object = new FlexoGameObject().WithParent( gameObject ).With<RegistryService>( out registry );
-        }
-
-        // test
-        void Update ()
-        {
-            Registration[] registrations = registry.Registrations;
-
-            IntegrationTest.Assert( (registrations is Array ), "expected to find an array but found " + registrations.GetType().ToString() );
+            IntegrationTest.Assert( registry.Registrations is Array, "expected to find an array but found " + registry.Registrations.GetType().ToString() );
             IntegrationTest.Pass();
-        }
+            registry.Flush();
 
-        // teardown
-        void OnDisable ()
-        {
-            Destroy( registry_object );
         }
     }
 }

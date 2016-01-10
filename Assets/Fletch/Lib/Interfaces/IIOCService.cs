@@ -8,29 +8,17 @@ namespace Fletch
 {
     public interface IIOCService
     {
-        /// <summary>
-        /// Add a new service to the IOC Container. This method can be used to
-        /// add services if they're created after the IOCService is instantiated in
-        /// a scene.
-        /// </summary>
-        /// <param name="type">Type of service to add</param>
-        /// <param name="service">reference to the service</param>
-        void AddService ( Type type, Component service );
 
         /// <summary>
-        /// Return a reference to the type of component specified, or null.
+        /// Ask the IOC service to gather all children and make references to available
+        /// services.
         /// </summary>
-        /// <typeparam name="T">Type of component required</typeparam>
-        /// <returns>reference to component</returns>
-        Component Resolve<T>();
+        void Populate ();
 
         /// <summary>
-        /// Return an array of service references.
+        /// Provides an array of available services.
         /// </summary>
-        /// <returns>array of component references</returns>
-        Component[] RegisteredServices ();
-
-        Type[] RegisteredServiceTypes ();
-        
+        /// <returns></returns>
+        ServiceReference[] Services { get; }
     }
 }

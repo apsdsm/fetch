@@ -6,53 +6,73 @@ using System.Linq;
 namespace Fletch {
 
     /// <summary>
-    /// This partial contains the static methods for the IOC. I put them in 
-    /// their own file because static methods are so world bendingly horrible
-    /// that they need to be separated out like this in order for the whole
-    /// class not to chew its own face off. This is sad, but true.
+    /// This class contains the static methods for the IOC (even though static
+    /// methods make babies cry). The IOC containers themselves aren't static,
+    /// but the list which stores and manages them is.
+    /// 
+    /// By keeping this part of the process static, it allows us to poll the IOC
+    /// at potentially any time.
+    /// 
+    /// Even though crying babies.
     /// </summary>
-    public class IOC {
+    public static class IOC {
+
 
         /// <summary>
         /// This is a static cache of all the IOC containers. It's used so we 
         /// can reference the IOC container without having to perform any kind 
         /// of service location.
         /// </summary>
-        private static List<IOCService> _IOCDirectory = new List<IOCService>();
+        private static IOCService[] _IOCCache;
+    
+
+        /// <summary>
+        /// This is a static cache of all the services inside all the IOC containers
+        /// currently cached in the _IOCCache array.
+        /// </summary>
+        private static List<ServiceReference> _ServiceCache;
 
 
         /// <summary>
-        /// Adds a new IOC Container to a static directory of containers.
+        /// Search for IOC containers in the scene and add them to the directory.
+        /// Each container that is added will be told to populate itself and its
+        /// services will be added to the cache.
         /// </summary>
-        /// <param name="service">container to add.</param>
-        /// <returns>true if container was added</returns>
-        public static bool RegisterContainer ( IOCService service )
+        public static void Populate ()
         {
-            if ( !IOC._IOCDirectory.Contains( service ) )
+            // generate new array of containers
+            _IOCCache = (IOCService[])GameObject.FindObjectsOfType( typeof( IOCService ) );
+
+            // clear cache and generate new list
+            _ServiceCache = new List<ServiceReference>();
+
+            foreach ( IOCService ioc in _IOCCache )
             {
-                _IOCDirectory.Add( service );
-                return true;
+                // tell ioc to populate
+                ioc.Populate();
+
+                foreach ( ServiceReference service in ioc.Services )
+                {
+                    _ServiceCache.Add( service );
+                }
             }
-
-            return false;
         }
 
+
         /// <summary>
-        /// Remove an existing service from the directory of containers.
+        /// Returns an array containing all the services that are currently cached.
         /// </summary>
-        /// <param name="service">service to remove</param>
-        public static void DeregisterContainer ( IOCService service )
+        public static ServiceReference[] Services
         {
-            _IOCDirectory.Remove( service );
-        }
+            get
+            {
+                if ( _IOCCache == null )
+                {
+                    Populate();
+                }
 
-        /// <summary>
-        /// Returns a reference to a service that implements T.
-        /// </summary>
-        /// <returns>A resolved instance of type T</returns>
-        public static Component Resolve<T>() {
-            IOCService ioc = _IOCDirectory.First();
-            return ioc.Resolve<T>();
+                return _ServiceCache.ToArray();
+            }
         }
 
 
@@ -60,38 +80,33 @@ namespace Fletch {
         /// Provides an array of all the IOCs that are currently registered in 
         /// the directory.
         /// </summary>
-        public static IOCService[] Directory {
-            get 
+        public static IOCService[] Directories
+        {
+            get
             {
-                return _IOCDirectory.ToArray();
+                if ( _IOCCache == null )
+                {
+                    Populate();
+                }
+
+                return _IOCCache;
             }
         }
 
 
         /// <summary>
-        /// Returns an instance stored in the IOC directory.
+        /// Returns a reference to a service that implements T.
         /// </summary>
-        /// <returns></returns>
-        public static IOCService Instance ()
-        {
-            return _IOCDirectory.First();
-        }
+        /// <returns>A resolved instance of type T</returns>
+        public static T Resolve<T>() {
 
-     
-        /// <summary>
-        /// Create an array of all services stored in all ioc containers.
-        /// </summary>
-        /// <returns>Array of service references</returns>
-        public static Component[] RegisteredServices ()
-        {
-            List<Component> services = new List<Component>();
-
-            foreach ( IOCService ioc in _IOCDirectory )
+            if ( _IOCCache == null )
             {
-                services.AddRange( ioc.RegisteredServices() );
+                Populate();
             }
 
-            return services.ToArray();
+            T resolved = (T)_ServiceCache.FirstOrDefault( x => x.type == typeof( T ) ).reference;
+            return resolved;
         }
     }
 }
