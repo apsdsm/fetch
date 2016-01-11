@@ -22,13 +22,13 @@ namespace Fletch.Test.Integration.RegistryServiceTests
         // test
         void Test ()
         {
-            registry.Register( test.GetType(), "TestComponent", test );
+            registry.Register<BazComponent>( "TestComponent", test );
 
             int first_count = registry.Registrations.Length;
 
             IntegrationTest.Assert( first_count == 1, "expected 1 object to be registered, but found: " + first_count );
 
-            registry.Deregister( test.GetType(), "TestComponent" );
+            registry.Deregister<BazComponent>( "TestComponent" );
 
             int second_count = registry.Registrations.Length;
 
@@ -38,6 +38,5 @@ namespace Fletch.Test.Integration.RegistryServiceTests
 
             registry.Flush();
         }
-
     }
 }

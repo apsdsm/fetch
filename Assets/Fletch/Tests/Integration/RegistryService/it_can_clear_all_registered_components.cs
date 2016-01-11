@@ -19,7 +19,7 @@ namespace Fletch.Test.Integration.RegistryServiceTests
 
         void Test ()
         {
-            registry.Register( test_component.GetType(), "TestComponent", test_component );
+            registry.Register<BazComponent>( "TestComponent", test_component );
 
             int length = registry.Registrations.Length;
 

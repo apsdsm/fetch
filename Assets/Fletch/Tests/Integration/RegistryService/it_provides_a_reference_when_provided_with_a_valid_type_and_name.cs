@@ -14,7 +14,7 @@ namespace Fletch.Test.Integration.RegistryServiceTests
         {
             test_object = new FlexoGameObject().WithParent( gameObject ).With<BazComponent>( out baz_component );
 
-            registry.Register( baz_component.GetType(), "BazComponent", baz_component );
+            registry.Register<BazComponent>( "BazComponent", baz_component );
 
             BazComponent result = registry.LookUp<BazComponent>( "BazComponent" );
 

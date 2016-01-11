@@ -27,7 +27,7 @@ namespace Fletch.Test.Integration.RegistryServiceTests
             test_object = new FlexoGameObject().WithParent( gameObject ).With<BazComponent>( out baz_component );
 
             // register the test component
-            registry.Register( baz_component.GetType(), "BazComponent", baz_component );
+            registry.Register<BazComponent>( "BazComponent", baz_component );
 
             // create new reference and make a reservation
             registry.Reserve<BazComponent>( "BazComponent", this );

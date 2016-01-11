@@ -11,21 +11,10 @@ namespace Fletch
     {
 
         // private list of registrations
-        private List<Registration> registrations;
+        private List<Registration> registrations = new List<Registration>();
 
         // private list of reservations
-        private List<Reservation> reservations;
-
-
-        /// <summary>
-        /// When initialized, flush system to create new lists.
-        /// </summary>
-        void Awake ()
-        {
-            registrations = new List<Registration>();
-            reservations = new List<Reservation>();
-        }
-
+        private List<Reservation> reservations = new List<Reservation>();
 
         /// <summary>
         /// Get all registrations as an array.
@@ -38,17 +27,23 @@ namespace Fletch
 
 
         /// <summary>
-        /// Registers a new object in the registry.
+        /// Register a new object using generics.
         /// </summary>
-        /// <param name="type">Type of object</param>
-        /// <param name="identifier">Name of object</param>
-        /// <param name="reference">Reference to Object</param>
-        public void Register ( Type type, string identifier, object reference )
+        /// <typeparam name="T">type of object to register as</typeparam>
+        /// <param name="identifier">string identifier for object</param>
+        /// <param name="reference">reference to object</param>
+        public void Register<T>( string identifier, object reference )
         {
-            registrations.Add( new Registration() { type = type, identifier = identifier, reference = reference } );
+            Registration registration = new Registration();
+
+            registration.type = typeof( T );
+            registration.identifier = identifier;
+            registration.reference = reference;
+
+            registrations.Add( registration );
 
             // check to see if anybody wants this registration
-            Reservation[] waitingList = reservations.Where( r => r.identifier == identifier && r.type == type ).ToArray();
+            Reservation[] waitingList = reservations.Where( r => r.identifier == identifier && r.type == typeof( T ) ).ToArray();
 
             if ( waitingList.Length > 0 )
             {
@@ -85,9 +80,9 @@ namespace Fletch
         /// </summary>
         /// <param name="type"></param>
         /// <param name="identifier"></param>
-        public void Deregister ( Type type, string identifier )
+        public void Deregister<T>( string identifier )
         {
-            object reference = registrations.RemoveAll( r => r.type == type && r.identifier == identifier );
+            object reference = registrations.RemoveAll( r => r.type == typeof ( T ) && r.identifier == identifier );
         }
 
 

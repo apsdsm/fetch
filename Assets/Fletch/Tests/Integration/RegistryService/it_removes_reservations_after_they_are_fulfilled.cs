@@ -38,9 +38,9 @@ namespace Fletch.Test.Integration.RegistryServiceTests
             IntegrationTest.Assert( reserved_baz_component == null, "target component should be null before requested component is registered" );
 
             // register the test component, deregister it, and register it again
-            registry.Register( baz_component.GetType(), "BazComponent", baz_component );
-            registry.Deregister( baz_component.GetType(), "BazComponent" );
-            registry.Register( baz_component.GetType(), "BazComponent", baz_component );
+            registry.Register<BazComponent>( "BazComponent", baz_component );
+            registry.Deregister<BazComponent>( "BazComponent" );
+            registry.Register<BazComponent>( "BazComponent", baz_component );
 
             // reservation method should only have been called once
             IntegrationTest.Assert( times_setter_called == 1, "setter should have been called 1 time but was called " + times_setter_called.ToString() + " times" );

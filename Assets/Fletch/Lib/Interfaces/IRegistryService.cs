@@ -15,7 +15,7 @@ namespace Fletch
         /// <param name="type">the type of the object</param>
         /// <param name="identifier">the identifier that it will be known by</param>
         /// <param name="reference">a reference to the object</param>
-        void Register ( Type type, string identifier, object reference );
+        void Register<T>( string identifier, object reference );
 
 
         /// <summary>
@@ -23,7 +23,7 @@ namespace Fletch
         /// </summary>
         /// <param name="type">the type identifier</param>
         /// <param name="identifier">the string identifier</param>
-        void Deregister ( Type type, string identifier );
+        void Deregister<T>( string identifier );
 
 
         /// <summary>
