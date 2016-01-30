@@ -23,8 +23,8 @@ namespace Fletch
 
         /// <summary>
         /// Looks through each child object, seeking for classes that implement
-        /// a interface that ends with 'Service', and adding those to the 
-        /// service directory.
+        /// a interface that ends with one of the keywords: 'Service', 'Factory',
+        /// 'Manager', or 'Controller, and adding those to the service directory.
         /// </summary>
         public void Populate ()
         {
@@ -36,9 +36,11 @@ namespace Fletch
                     {
                         string typeString = type.ToString();
 
-                        if (typeString.EndsWith( "Service" ) || typeString.EndsWith( "Factory" ) || typeString.EndsWith( "Manager") )
+                        if (typeString.EndsWith( "Service" ) || 
+                            typeString.EndsWith( "Factory" ) || 
+                            typeString.EndsWith( "Manager") ||
+                            typeString.EndsWith( "Controller" ) )
                         {
-
                             ServiceReference serviceReference = new ServiceReference();
                             serviceReference.type = type;
                             serviceReference.reference = component;
