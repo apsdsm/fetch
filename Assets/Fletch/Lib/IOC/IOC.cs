@@ -106,6 +106,12 @@ namespace Fletch {
             }
 
             T resolved = (T)_ServiceCache.FirstOrDefault( x => x.type == typeof( T ) ).reference;
+
+            if ( resolved == null )
+            {
+                throw new ServiceNotFoundException();
+            }
+
             return resolved;
         }
     }

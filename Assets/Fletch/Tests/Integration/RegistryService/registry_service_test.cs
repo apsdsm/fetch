@@ -3,8 +3,6 @@ using TestHelpers;
 
 namespace Fletch.Test.Integration.RegistryServiceTests
 {
-
-    [IntegrationTest.DynamicTest( "Fletch.IOCTest" )]
     public class registry_service_test : UTestCase
     {
 
