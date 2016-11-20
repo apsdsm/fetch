@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Fletch
+namespace Fetch
 {
     /// <summary>
     /// This exception is called when the RegistryService cannot find an appropriate setter for

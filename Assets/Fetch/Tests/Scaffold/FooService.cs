@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
 
-namespace Fletch.Test {
+namespace Fetch.Test {
     public class FooService : MonoBehaviour, IFooService { }
 }

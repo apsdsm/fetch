@@ -3,8 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Fletch
-{
+namespace Fetch {
 
     /// <summary>
     /// This class contains the static methods for the IOC (even though static
@@ -16,8 +15,7 @@ namespace Fletch
     /// 
     /// Even though crying babies.
     /// </summary>
-    public static class IOC
-    {
+    public static class IOC {
 
 
         /// <summary>
@@ -40,8 +38,7 @@ namespace Fletch
         /// Each container that is added will be told to populate itself and its
         /// services will be added to the cache.
         /// </summary>
-        public static void Populate()
-        {
+        public static void Populate() {
             // generate new array of containers
             _IOCCache = (IOCService[])GameObject.FindObjectsOfType(typeof(IOCService));
 
@@ -61,8 +58,7 @@ namespace Fletch
         /// <summary>
         /// Clear current IOC data and issue a new populate call.
         /// </summary>
-        public static void RePopulate()
-        {
+        public static void RePopulate() {
             _IOCCache = null;
             _ServiceCache = null;
 
@@ -72,8 +68,7 @@ namespace Fletch
         /// <summary>
         /// Returns an array containing all the services that are currently cached.
         /// </summary>
-        public static ServiceReference[] Services
-        {
+        public static ServiceReference[] Services {
             get {
                 if (_IOCCache == null) {
                     Populate();
@@ -88,8 +83,7 @@ namespace Fletch
         /// Provides an array of all the IOCs that are currently registered in 
         /// the directory.
         /// </summary>
-        public static IOCService[] Directories
-        {
+        public static IOCService[] Directories {
             get {
                 if (_IOCCache == null) {
                     Populate();
@@ -104,8 +98,7 @@ namespace Fletch
         /// Returns a reference to a service that implements T.
         /// </summary>
         /// <returns>A resolved instance of type T</returns>
-        public static T Resolve<T>()
-        {
+        public static T Resolve<T>() {
             if (IOCCacheIsEmpty()) {
                 Populate();
             }
@@ -119,13 +112,13 @@ namespace Fletch
             return resolved;
         }
 
+
         /// <summary>
         /// Quickly check to see if the IOCCache is empty, or if the variables it 
         /// contains have been nulled (this happens when you trash a scene)
         /// </summary>
         /// <returns></returns>
-        private static bool IOCCacheIsEmpty()
-        {
+        private static bool IOCCacheIsEmpty() {
             if (_IOCCache == null) {
                 return true;
             }

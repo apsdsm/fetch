@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Fletch.Test
+namespace Fetch.Test
 {
     public class BarService : MonoBehaviour, IBarService
     {

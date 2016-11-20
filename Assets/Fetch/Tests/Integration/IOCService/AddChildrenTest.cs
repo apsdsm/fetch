@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Fletch.Test.Integration.IOCServiceTests
+namespace Fetch.Test.Integration.IOCServiceTests
 {
 
     [IntegrationTest.DynamicTest( "_IOCServiceTest" )]

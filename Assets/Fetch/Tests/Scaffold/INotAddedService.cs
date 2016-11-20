@@ -1,4 +1,4 @@
-﻿namespace Fletch.Test
+﻿namespace Fetch.Test
 {
     public interface INotAddedService
     {

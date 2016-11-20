@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Fletch.Test.Integration.IOCTests {
+namespace Fetch.Test.Integration.IOCTests {
 
     [IntegrationTest.DynamicTest("_IOCTest")]
     public class ResolveServicesTest : MonoBehaviour {

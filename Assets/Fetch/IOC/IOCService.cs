@@ -3,14 +3,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Fletch
+namespace Fetch
 {
 
     /// <summary>
-    /// IOC is an IOC Container that can be used to resolve reference to, and
-    /// create new instances of objects stored in the game scene. The container
-    /// is a game component itself, so it needs to be attached to something in
-    /// the scene.
+    /// IOCService is an IOC Container that can be used to resolve references to, and
+    /// create new instances of objects stored in the game scene. The container is a 
+    /// game component itself, so it needs to be attached to something in the scene.
     /// 
     /// It will only resolve objects that are children of itself, and it will
     /// do a search for services when the scene starts. 
@@ -32,9 +31,7 @@ namespace Fletch
         }
 
         /// <summary>
-        /// Looks through each child object, seeking for classes that implement
-        /// a interface that ends with one of the keywords: 'Service', 'Factory',
-        /// 'Manager', or 'Controller, and adding those to the service directory.
+        /// Looks through each child object, and adds its interfaces to the service directory.
         /// </summary>
         public void Populate()
         {
@@ -47,10 +44,9 @@ namespace Fletch
                 foreach (Component component in child.GetComponents<Component>()) {
                     if (component != child.transform) {
                         foreach (Type type in component.GetType().GetInterfaces()) {
-                            ServiceReference serviceReference = new ServiceReference();
+                            var serviceReference = new ServiceReference();
                             serviceReference.type = type;
                             serviceReference.reference = component;
-
                             services.Add(serviceReference);
                         }
                     }

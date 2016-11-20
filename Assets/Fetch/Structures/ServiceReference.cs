@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Reflection;
 
-namespace Fletch
+namespace Fetch
 {
     /// <summary>
     /// Holds a single reservation that will be fulfilled in the future.
