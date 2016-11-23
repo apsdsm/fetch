@@ -39,14 +39,10 @@ namespace Fetch {
         /// services will be added to the cache.
         /// </summary>
         public static void Populate() {
-            // generate new array of containers
             _IOCCache = (IOCService[])GameObject.FindObjectsOfType(typeof(IOCService));
-
-            // clear cache and generate new list
             _ServiceCache = new List<ServiceReference>();
 
             foreach (IOCService ioc in _IOCCache) {
-                // tell ioc to populate
                 ioc.Populate();
 
                 foreach (ServiceReference service in ioc.Services) {
@@ -85,7 +81,6 @@ namespace Fetch {
         /// <returns>A resolved instance of type T</returns>
         /// <exception cref="ServiceNotFoundException">called if service not found</exception>
         public static T Resolve<T>() {
-
             PopulateIfIocEmpty();
 
             var r = _ServiceCache.FirstOrDefault(x => x.type == typeof(T));
