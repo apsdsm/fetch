@@ -2,9 +2,11 @@
 
 Fetch is a very light weight IOC Container for Unity. It allows you decouple your components in Unity, or at least make them not so *tightly* coupled.
 
-Fetch was designed to facilitate a specific Unity coding style that I've been using lately, so it's not really out there to implement everything you might want to see in an IOC Container or Registry component. If you'll like an IOC project for Unity that is much more full featured and mature, then I suggest you check out [StrangeIoC](http://strangeioc.github.io/strangeioc/), which does way more things than Fetch sets out to achieve.
+## About
 
-On the other hand, if StrangeIoC seems to do way too much, and all you need is a system for fetching your components by interface, then Fetch might be right for you.
+Fetch was designed to facilitate a specific Unity coding style that I've been using lately, so it's not really out there to implement everything you might want to see in an IOC Container. If you'll like an IOC project for Unity that is much more full featured and mature, then I suggest you check out [StrangeIoC](http://strangeioc.github.io/strangeioc/), which does way more things than Fetch sets out to achieve.
+
+On the other hand, if StrangeIoC seems to do way too much, and all you need is a system for fetching your service components by interface, then Fetch might be right for you.
 
 ## The IOC Container
 
@@ -52,18 +54,45 @@ If it suits your architecture, you could set up a single IOC that holds all serv
 
 This isn't a heavily tested feature, so please use it with caution. If you do notice bugs and figure out how to resolve them please submit a bug report or (better yet) a pull request with a fix.
 
+## Using A Bridge
+
+If you're trying to use tests in your game, you'll often find yourself creating MonoBehaviour objects whose sole purpose is to act as an intermediary between the game world and some other non-MonoBehaviour object (particularly managers, or services).
+
+There are lots of ways of doing this - and most of them are pretty messy. Using a *bridge* is one way to simplify the process and formalize the pattern.
+
+Say we have this class:
+
+```csharp
+public interface IFooService () {
+    void DoFoo();
+}
+
+public class FooService () {
+    public void DoFoo();
+}
+```
+
+We want `FooService` accessible from the IOC Container, but since it does not derive from MonoBehaviour, we can't add it as a child of the IOC Service. Instead of adding FooService directly, we can create a bridge:
+
+```csharp
+class FooBridge : MonoBehaviour, Fetch.IBridge<IFooService> {
+    
+    private _service;
+
+    void Awake() {
+        _service = new FooService();
+    }
+
+    public IFooService bridged {
+        get {
+            return _service;
+        }
+    }
+}
+```
+
+Now, if we add the bridge to the IOC container, we can resolve directly to `IFooService`. This allows us to keep the service itself as a 'pure' object, and leave any interaction between the object and the game itself inside the bridge class.
+
 ## Contributing
 
 This is a very small project and I don't expect any outside contribution. However if you do use Fetch and you find a bug, please report it. If you fix the bug, please submit a PR together with an explanation of the bug. I would appreciate if fixes were sent with tests, but I understand that writing tests for this kind of thing is kind of difficult.
-
-## Changes in v1.2
-
-- I removed the Registry Service component. This makes the package more focused, and easier to maintain.
-
-- I renamed the package from Fletch to Fetch. Fetch makes more sense, and nobody got the joke anyway.
-
-- I cleaned up the tests a lot, and removed dependencies on some custom Test Helper classes I'd written. This makes it easier for people to contribute if they want to.
-
-- I make the IOC more robust, and a little more flexible. It now adds any interface to the directory, irrespective of its name. The important part is that it's a child of the IOC container component.
-
-- I added the persistent object functionality.

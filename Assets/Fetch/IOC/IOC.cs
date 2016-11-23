@@ -39,14 +39,10 @@ namespace Fetch {
         /// services will be added to the cache.
         /// </summary>
         public static void Populate() {
-            // generate new array of containers
             _IOCCache = (IOCService[])GameObject.FindObjectsOfType(typeof(IOCService));
-
-            // clear cache and generate new list
             _ServiceCache = new List<ServiceReference>();
 
             foreach (IOCService ioc in _IOCCache) {
-                // tell ioc to populate
                 ioc.Populate();
 
                 foreach (ServiceReference service in ioc.Services) {
@@ -55,40 +51,25 @@ namespace Fetch {
             }
         }
 
-        /// <summary>
-        /// Clear current IOC data and issue a new populate call.
-        /// </summary>
-        public static void RePopulate() {
-            _IOCCache = null;
-            _ServiceCache = null;
-
-            IOC.Populate();
-        }
 
         /// <summary>
-        /// Returns an array containing all the services that are currently cached.
+        /// Provides access to currently registered services.
         /// </summary>
         public static ServiceReference[] Services {
             get {
-                if (_IOCCache == null) {
-                    Populate();
-                }
-
+                PopulateIfIocEmpty();
                 return _ServiceCache.ToArray();
             }
         }
 
 
         /// <summary>
-        /// Provides an array of all the IOCs that are currently registered in 
+        /// Provides access to currently registered IOC containers.
         /// the directory.
         /// </summary>
         public static IOCService[] Directories {
             get {
-                if (_IOCCache == null) {
-                    Populate();
-                }
-
+                PopulateIfIocEmpty();
                 return _IOCCache;
             }
         }
@@ -98,38 +79,42 @@ namespace Fetch {
         /// Returns a reference to a service that implements T.
         /// </summary>
         /// <returns>A resolved instance of type T</returns>
+        /// <exception cref="ServiceNotFoundException">called if service not found</exception>
         public static T Resolve<T>() {
-            if (IOCCacheIsEmpty()) {
-                Populate();
-            }
+            PopulateIfIocEmpty();
 
-            T resolved = (T)_ServiceCache.FirstOrDefault(x => x.type == typeof(T)).reference;
-
-            if (resolved == null) {
+            var r = _ServiceCache.FirstOrDefault(x => x.type == typeof(T));
+           
+            if (r.reference == null) {
                 throw new ServiceNotFoundException("could not find: " + typeof(T).ToString());
             }
 
-            return resolved;
+            if (r.isBridge) {
+                return ((IBridge<T>)r.reference).bridged;
+            }
+
+            return (T)r.reference;            
         }
 
 
         /// <summary>
-        /// Quickly check to see if the IOCCache is empty, or if the variables it 
-        /// contains have been nulled (this happens when you trash a scene)
+        /// Quickly check to see if the IOCCache is null, or if the services array 
+        /// contains any nulled values (this happens when you trash a scene). If a
+        /// null value is found, the services array will be populated.
+        /// 
+        /// This method is used as a check to make sure that Resolve isn't called
+        /// on a potentially dangerous array.
         /// </summary>
-        /// <returns></returns>
-        private static bool IOCCacheIsEmpty() {
-            if (_IOCCache == null) {
-                return true;
-            }
-
-            foreach (IOCService service in _IOCCache) {
-                if (service == null) {
-                    return true;
+        private static void PopulateIfIocEmpty() {
+            if (_IOCCache != null) {
+                foreach (IOCService service in _IOCCache) {
+                    if (service == null) {
+                        Populate();
+                        return;
+                    }
                 }
             }
-
-            return false;
         }
+
     }
 }

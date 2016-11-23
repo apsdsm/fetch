@@ -13,5 +13,8 @@ namespace Fetch
 
         // identifier for the reservation
         public object reference;
+
+        // true if this reference is to a bridge object
+        public bool isBridge;
     }
 }
