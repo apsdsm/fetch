@@ -10,7 +10,7 @@ namespace Fetch.Test {
             _controller = new BazService();
         }
 
-        public IBazService controller {
+        public IBazService bridged {
             get {
                 return _controller;
             }

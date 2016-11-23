@@ -90,7 +90,7 @@ namespace Fetch {
             }
 
             if (r.isBridge) {
-                return ((IBridge<T>)r.reference).controller;
+                return ((IBridge<T>)r.reference).bridged;
             }
 
             return (T)r.reference;            
