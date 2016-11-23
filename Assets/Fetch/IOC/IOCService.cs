@@ -31,7 +31,9 @@ namespace Fetch
         }
 
         /// <summary>
-        /// Looks through each child object, and adds its interfaces to the service directory.
+        /// Looks through each child object, and adds its interfaces to the service directory. If the
+        /// object implements Fetch.IBridge, then it will add the briged class to the directory instead
+        /// of the container.
         /// </summary>
         public void Populate()
         {
@@ -44,10 +46,19 @@ namespace Fetch
                 foreach (Component component in child.GetComponents<Component>()) {
                     if (component != child.transform) {
                         foreach (Type type in component.GetType().GetInterfaces()) {
-                            var serviceReference = new ServiceReference();
-                            serviceReference.type = type;
-                            serviceReference.reference = component;
-                            services.Add(serviceReference);
+
+                            var s = new ServiceReference();
+
+                            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IBridge<>)) {
+                                s.isBridge = true;
+                                s.type = type.GetGenericArguments()[0];
+                            } else {
+                                s.isBridge = false;
+                                s.type = type;
+                            }
+                                                            
+                            s.reference = component;
+                            services.Add(s);
                         }
                     }
                 }

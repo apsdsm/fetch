@@ -2,7 +2,5 @@
 
 namespace Fetch.Test
 {
-    public class BarService : MonoBehaviour, IBarService
-    {
-    }
+    public class BarService : MonoBehaviour, IBarService { }
 }

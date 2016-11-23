@@ -1,6 +1,3 @@
-﻿namespace Fetch.Test
-{
-    public interface INotAddedService
-    {
-    }
+﻿namespace Fetch.Test {
+    public interface INotAddedService { }
 }

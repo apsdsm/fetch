@@ -55,22 +55,13 @@ namespace Fetch {
             }
         }
 
-        /// <summary>
-        /// Clear current IOC data and issue a new populate call.
-        /// </summary>
-        public static void RePopulate() {
-            _IOCCache = null;
-            _ServiceCache = null;
-
-            IOC.Populate();
-        }
 
         /// <summary>
         /// Returns an array containing all the services that are currently cached.
         /// </summary>
         public static ServiceReference[] Services {
             get {
-                if (_IOCCache == null) {
+                if (IOCCacheIsEmpty()) {
                     Populate();
                 }
 
@@ -85,7 +76,7 @@ namespace Fetch {
         /// </summary>
         public static IOCService[] Directories {
             get {
-                if (_IOCCache == null) {
+                if (IOCCacheIsEmpty()) {
                     Populate();
                 }
 
@@ -103,13 +94,18 @@ namespace Fetch {
                 Populate();
             }
 
-            T resolved = (T)_ServiceCache.FirstOrDefault(x => x.type == typeof(T)).reference;
-
-            if (resolved == null) {
+            var r = _ServiceCache.FirstOrDefault(x => x.type == typeof(T));
+           
+            if (r.reference == null) {
                 throw new ServiceNotFoundException("could not find: " + typeof(T).ToString());
             }
 
-            return resolved;
+            if (r.isBridge) {
+                return ((IBridge<T>)r.reference).controller;
+            }
+
+            return (T)r.reference;
+            
         }
 
 
