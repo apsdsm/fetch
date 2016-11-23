@@ -106,12 +106,15 @@ namespace Fetch {
         /// on a potentially dangerous array.
         /// </summary>
         private static void PopulateIfIocEmpty() {
-            if (_IOCCache != null) {
-                foreach (IOCService service in _IOCCache) {
-                    if (service == null) {
-                        Populate();
-                        return;
-                    }
+            if (_IOCCache == null) {
+                Populate();
+                return;
+            }
+
+            foreach (IOCService service in _IOCCache) {
+                if (service == null) {
+                    Populate();
+                    return;
                 }
             }
         }
