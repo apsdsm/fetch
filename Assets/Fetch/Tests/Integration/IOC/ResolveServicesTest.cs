@@ -17,7 +17,7 @@ namespace Fetch.Test.Integration.IOCTests {
 
             try {
                 IOC.Resolve<INotAddedService>();
-            } catch (ServiceNotFoundException e) {
+            } catch {
                 IntegrationTest.Pass();
                 return;
             }

@@ -3,7 +3,7 @@
 namespace Fetch.Test.Integration.IOCServiceTests {
 
     [IntegrationTest.DynamicTest("_IOCServiceTest")]
-    public class AddBridgeTest : MonoBehaviour {
+    public class AddAdapterTest : MonoBehaviour {
 
         void Update() {
             // get IOC
@@ -14,7 +14,7 @@ namespace Fetch.Test.Integration.IOCServiceTests {
 
             var bridgedService = IOC.Resolve<IBazService>();
 
-            IntegrationTest.Assert(bridgedService != null, "it should resolve a bridged service");
+            IntegrationTest.Assert(bridgedService != null, "it should resolve controller from adapter service");
             IntegrationTest.Pass();
 
         }

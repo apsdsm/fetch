@@ -1,14 +1,7 @@
-﻿using UnityEngine;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Fetch
+﻿namespace Fetch
 {
-    public interface IIocService
-    {
-
+    public interface IIocService {
+        
         /// <summary>
         /// Ask the IOC service to gather all children and make references to available
         /// services.
@@ -19,6 +12,6 @@ namespace Fetch
         /// Provides an array of available services.
         /// </summary>
         /// <returns></returns>
-        ServiceReference[] Services { get; }
+        Service[] Services { get; }
     }
 }

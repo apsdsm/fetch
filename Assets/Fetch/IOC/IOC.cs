@@ -17,21 +17,24 @@ namespace Fetch {
     /// </summary>
     public static class IOC {
 
-
         /// <summary>
         /// This is a static cache of all the IOC containers. It's used so we 
         /// can reference the IOC container without having to perform any kind 
         /// of service location.
         /// </summary>
-        private static IOCService[] _IOCCache;
-
+        private static IOCService[] iocContainers;
 
         /// <summary>
         /// This is a static cache of all the services inside all the IOC containers
         /// currently cached in the _IOCCache array.
         /// </summary>
-        private static List<ServiceReference> _ServiceCache;
+        private static List<Service> services;
 
+        /// <summary>
+        /// This is a static cache of bindings that are used to make new obejcts. It is
+        /// populated at scene start.
+        /// </summary>
+        public static List<Binding> bindings;
 
         /// <summary>
         /// Search for IOC containers in the scene and add them to the directory.
@@ -39,41 +42,40 @@ namespace Fetch {
         /// services will be added to the cache.
         /// </summary>
         public static void Populate() {
-            _IOCCache = (IOCService[])GameObject.FindObjectsOfType(typeof(IOCService));
-            _ServiceCache = new List<ServiceReference>();
+            iocContainers = (IOCService[])GameObject.FindObjectsOfType(typeof(IOCService));
+            services = new List<Service>();
 
-            foreach (IOCService ioc in _IOCCache) {
+            foreach (IOCService ioc in iocContainers) {
+                // populate the ioc
                 ioc.Populate();
 
-                foreach (ServiceReference service in ioc.Services) {
-                    _ServiceCache.Add(service);
+                // copy its references
+                foreach (Service service in ioc.Services) {
+                    services.Add(service);
                 }
             }
         }
 
-
         /// <summary>
         /// Provides access to currently registered services.
         /// </summary>
-        public static ServiceReference[] Services {
+        public static Service[] Services {
             get {
                 PopulateIfIocEmpty();
-                return _ServiceCache.ToArray();
+                return services.ToArray();
             }
         }
-
 
         /// <summary>
         /// Provides access to currently registered IOC containers.
         /// the directory.
         /// </summary>
-        public static IOCService[] Directories {
+        public static IOCService[] Containers {
             get {
                 PopulateIfIocEmpty();
-                return _IOCCache;
+                return iocContainers;
             }
         }
-
 
         /// <summary>
         /// Returns a reference to a service that implements T.
@@ -83,19 +85,59 @@ namespace Fetch {
         public static T Resolve<T>() {
             PopulateIfIocEmpty();
 
-            var r = _ServiceCache.FirstOrDefault(x => x.type == typeof(T));
+            var r = services.FirstOrDefault(x => x.type == typeof(T));
            
             if (r.reference == null) {
                 throw new ServiceNotFoundException("could not find: " + typeof(T).ToString());
             }
 
-            if (r.isBridge) {
-                return ((IBridge<T>)r.reference).bridged;
+            if (r.isAdapter) {
+                return ((IAdapter<T>)r.reference).controller;
             }
 
-            return (T)r.reference;            
+            return (T)r.reference;
         }
 
+        /// <summary>
+        /// Resolve the requested type of service or return null.
+        /// </summary>
+        /// <returns></returns>
+        private static T ResolveOrNull<T>() {
+            PopulateIfIocEmpty();
+
+            var r = services.FirstOrDefault(x => x.type == typeof(T));
+            
+            if (r.reference == null) {
+                return default(T);
+            }
+
+            if (r.isAdapter) {
+                return ((IAdapter<T>)r.reference).controller;
+            }
+
+            return (T)r.reference;
+        }
+
+        /// <summary>
+        /// Resolve the requested type of the service or return null. Does not use generics.
+        /// </summary>
+        /// <param name="type">The type of the service to look for</param>
+        /// <returns>A non-typecast reference to the object</returns>
+        private static System.Object ResolveOrNull(Type type) {
+            PopulateIfIocEmpty();
+
+            var r = services.FirstOrDefault(x => x.type == type);
+            
+            if (r.reference == null) {
+                return null;
+            }
+
+            if (r.isAdapter) {
+                return (System.Object)((IAdapter<System.Object>)r.reference).controller;
+            }
+
+            return (System.Object)r.reference;
+        }
 
         /// <summary>
         /// Quickly check to see if the IOCCache is null, or if the services array 
@@ -105,18 +147,112 @@ namespace Fetch {
         /// This method is used as a check to make sure that Resolve isn't called
         /// on a potentially dangerous array.
         /// </summary>
-        private static void PopulateIfIocEmpty() {
-            if (_IOCCache == null) {
+        public static void PopulateIfIocEmpty() {
+            if (iocContainers == null) {
                 Populate();
                 return;
             }
 
-            foreach (IOCService service in _IOCCache) {
+            foreach (IOCService service in iocContainers) {
                 if (service == null) {
                     Populate();
                     return;
                 }
             }
+        }
+
+        /// <summary>
+        /// Dynamically make a new instance of an object at run time. Checks the parameters in the obejct's
+        /// constructor and autoamtically applies any supplied parameters where appropriate. For any constructor
+        /// parameters not covered by the passed parameters, Make will search for services bound to the IOC.
+        /// <param name="parameters">a list of parameters you want to use to create the instance</param>
+        /// <returns>an instance of the created obejct, else the default value for that object</returns>
+        public static T Make<T>(params System.Object[] parameters) {
+
+            // make new parameter array
+            var ps = new Parameter[parameters.Count()];
+
+            // assign parameters to the array
+            for (var i = 0; i < parameters.Length; ++i) {
+                ps[i] = new Parameter() {
+                    type = parameters[i].GetType(),
+                    reference = parameters[i],
+                    assigned = false,
+                };
+            }
+
+            // the type of thing we want to make
+            var type = typeof(T);
+
+            // see if there's a bidning that matches the type of thing we want to make
+            var binding = bindings.FirstOrDefault(x => x.queryType == type);
+
+            // get the constructors for that type
+            var ctors = binding.resolveType.GetConstructors();
+
+            // if no constructors, just make an instance and return it
+            if (ctors.Count() == 0) {
+                return (T)Activator.CreateInstance(binding.resolveType);
+            }
+
+            // if there are constructors, check each one, and see if there are any we can build
+            foreach (var ctor in ctors) {
+
+                // start by getting the parameters for this constructor
+                var ctorParams = ctor.GetParameters();
+
+                // make an array of equal length as the number of parameters in this constructor
+                var satisfiedParams = new System.Object[ctorParams.Count()];
+
+                // check passed parameters for passable paramters
+                for (var i = 0; i < ctorParams.Count(); ++i) {
+                    if (satisfiedParams[i] == null) {
+                        for (var j = 0; j < ps.Length; ++j) {
+                            if (ps[j].assigned == false) {
+                                satisfiedParams[j] = ps[j].reference;
+                                ps[j].assigned = false;
+                            }
+                        }
+                    }
+                }
+
+                // check registered services for passable parameters
+                for (var i = 0; i < ctorParams.Count(); ++i) {
+                    if (satisfiedParams[i] == null) {
+                        satisfiedParams[i] = ResolveOrNull(ctorParams[i].ParameterType);
+                    }
+                }
+
+                // if all params weren't satisfied, keep searching
+                if (satisfiedParams.Contains(null)) {
+                    for (var i = 0; i < ps.Length; ++i) {
+                        ps[i].assigned = false;
+                    }
+                    continue;
+                }
+
+                // otherwise make an instance
+                var instance = Activator.CreateInstance(binding.resolveType, satisfiedParams);
+                return (T)instance;
+            }
+
+            // if we couldn't make one of the thigns we wanted to make, return the default for that thing
+            return default(T);
+        }
+
+        /// <summary>
+        /// Bind an interface type to an implementation type. The implementation can be dynamically
+        /// created at runtime using Make()
+        /// </summary>
+        public static void Bind<Q, R>() {
+            if (bindings == null) {
+                bindings = new List<Binding>();
+            }
+
+            bindings.Add(new Binding {
+                queryType = typeof(Q),
+                resolveType = typeof(R),
+            });
         }
 
     }

@@ -16,12 +16,11 @@ namespace Fetch
     /// </summary>
     public class IOCService : MonoBehaviour, IIocService
     {
-
         // IOC will persist between level loads
         public bool persistAlways = false;
 
         // list of the services that are attached to this IOC Container
-        private List<ServiceReference> services = new List<ServiceReference>();
+        private List<Service> services;
 
         void Awake()
         {
@@ -32,46 +31,54 @@ namespace Fetch
 
         /// <summary>
         /// Looks through each child object, and adds its interfaces to the service directory. If the
-        /// object implements Fetch.IBridge, then it will add the briged class to the directory instead
+        /// object implements Fetch.IAdapter, then it will add the briged class to the directory instead
         /// of the container.
         /// </summary>
         public void Populate()
         {
+            services = new List<Service>();
+
             foreach (Transform child in transform) {
 
-                if (persistAlways) {
-                    DontDestroyOnLoad(transform.gameObject);
-                }
-
                 foreach (Component component in child.GetComponents<Component>()) {
-                    if (component != child.transform) {
-                        foreach (Type type in component.GetType().GetInterfaces()) {
 
-                            var s = new ServiceReference();
+                    if (component == child.transform) {
+                        continue;
+                    }
 
-                            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IBridge<>)) {
-                                s.isBridge = true;
-                                s.type = type.GetGenericArguments()[0];
-                            } else {
-                                s.isBridge = false;
-                                s.type = type;
-                            }
-                                                            
-                            s.reference = component;
-                            services.Add(s);
+                    foreach (Type type in component.GetType().GetInterfaces()) {
+
+                        // if the type is an adapter class, add as adapter reference
+                        if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IAdapter<>)) {
+                            services.Add(new Service() {
+                                isAdapter = true,
+                                type = type.GetGenericArguments()[0],
+                                reference = component,
+                            });
+                        
+                        // otherwise add as regular reference
+                        } else {
+                            services.Add(new Service() {
+                                isAdapter = false,
+                                type = type,
+                                reference = component,
+                            });
                         }
                     }
                 }
             }
         }
 
-
         /// <summary>
         /// Return array of all services in this container.
         /// </summary>
-        public ServiceReference[] Services
+        public Service[] Services
         {
             get {
+                if (services == null) {
+                    return null;
+                }
+
                 return services.ToArray();
             }
         }

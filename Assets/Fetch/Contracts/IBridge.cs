@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Fetch {
+﻿namespace Fetch
+{
 
     /// <summary>
     /// A Bridge is a link between a game obejct and some other non-monobehaviour
