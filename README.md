@@ -12,7 +12,7 @@ Fetch allows you to store services in a number of ways, and access them relative
 
 ## Making Services Available To Fetch
 
-There are three ways that you can make a service available for retreival or creation:
+There are three ways that you can make a service available for retrieval or creation:
 
 ### Access MonoBehaviours Via Service Container Children
 
@@ -81,7 +81,7 @@ Objects stored via proxy are fetched like anything else in the Service Container
 
 ### Make New Instance Using Service Provider Binding
 
-It is possible to directly bind resolution classes to the IOC using a ServiceProvider class. To do this, extend from the base ServiceProvider class, and add a Populate() method. Insidet he Populate method, use the Bind and Singleton methods to make new class mappings available to the IOC container. The ServiceProvider class extends from MonoBehaviour, so you can add it to your scenes to make the bindings available on a per-scene basis.
+It is possible to directly bind resolution classes to the IOC using a ServiceProvider class. To do this, extend from the base ServiceProvider class, and add a Populate() method. Inside the Populate method, use the Bind and Singleton methods to make new class mappings available to the IOC container. The ServiceProvider class extends from MonoBehaviour, so you can add it to your scenes to make the bindings available on a per-scene basis.
 
 Mappings can be defined using `Bind` or `Singleton`, and are accessible using the `IOC.Make<T>` method.
 
@@ -104,7 +104,7 @@ class MyServiceProvider : Fetch.ServiceProvider
 
 To make a the TouchInputService above, you would `IOC.Make<IInputService>()`.
 
-Note that antyhign bound with the Singleton behaviour will exhibit Singleton behaviour - only one of them will be made the first time Make is called. Subsequent calls to make will return the previously made instance.
+Note that anything bound with the Singleton behaviour will exhibit Singleton behaviour - only one of them will be made the first time Make is called. Subsequent calls to make will return the previously made instance.
 
 ## Why should you do this?
 
@@ -130,4 +130,4 @@ This is a very small project and I don't expect any outside contribution. Howeve
 
 ## Installing
 
-There is a package in the `Packages` folder that you can inport into your Unity projects. Once this project feels a little more mature, I'll see about submitting a version to the asset store for easier installation.
+There is a package in the `Packages` folder that you can import into your Unity projects. Once this project feels a little more mature, I'll see about submitting a version to the asset store for easier installation.
