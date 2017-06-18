@@ -5,7 +5,7 @@ namespace Fetch
     /// <summary>
     /// Holds a single reservation that will be fulfilled in the future.
     /// </summary>
-    public struct Parameter
+    public class Parameter
     {
         // type of object reserved
         public Type type;
