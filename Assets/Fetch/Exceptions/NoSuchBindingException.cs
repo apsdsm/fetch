@@ -3,8 +3,7 @@ using System;
 namespace Fetch
 {
     /// <summary>
-    /// This exception is called when the RegistryService cannot find an appropriate setter for
-    /// a reservation.
+    /// Called when the IOC cannot find a binding for the specified interface.
     /// </summary>
     public class NoSuchBindingException : Exception
     {

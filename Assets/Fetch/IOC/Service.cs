@@ -3,7 +3,7 @@
 namespace Fetch
 {
     /// <summary>
-    /// Holds a single reservation that will be fulfilled in the future.
+    /// A representation of a single service.
     /// </summary>
     public class Service
     {

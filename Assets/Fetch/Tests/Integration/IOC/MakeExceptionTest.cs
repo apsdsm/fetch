@@ -7,7 +7,7 @@ namespace Fetch.Test.Integration.IOCTests
     {
         void Update()
         {
-            // should throw error to pass
+            // should not be able to late bind an interface
             try
             {
                 IOC.Make<INotAddedService>();

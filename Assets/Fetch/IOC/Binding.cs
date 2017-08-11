@@ -2,6 +2,9 @@ using System;
 
 namespace Fetch
 {
+    /// <summary>
+    /// A link between a query type and a concrete, instantiable type.
+    /// </summary>
     public class Binding
     {
         /// <summary>

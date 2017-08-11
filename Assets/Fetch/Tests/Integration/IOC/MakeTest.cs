@@ -6,24 +6,23 @@ namespace Fetch.Test.Integration.IOCTests
     [IntegrationTest.DynamicTest("_IOCTest")]
     public class MakeTest : MonoBehaviour
     {
-
         private IFooService fooService;
 
         // test
         void Update()
         {
-
             // get foo servicer reference
             fooService = IOC.Resolve<IFooService>();
 
-            // TestMakeWithNoParams();
-            // TestMakeWithSharedTypeParams();
-            // TestMakeWithServices();
-            // TestMakeWithParams();
-            // TestMakeWithServicesAndParams();
-            // TestMakeSingleton();
+            TestMakeWithNoParams();
+            TestMakeWithSharedTypeParams();
+            TestMakeWithServices();
+            TestMakeWithParams();
+            TestMakeWithServicesAndParams();
+            TestMakeSingleton();
             TestMakeServiceThatRequiresOtherBoundServices();
-
+            TestMakeLateBoundClassWithServices();
+            
             IntegrationTest.Pass();
         }
 
@@ -95,6 +94,16 @@ namespace Fetch.Test.Integration.IOCTests
             var bazSingleton = IOC.Make<IBazService>();
             IntegrationTest.Assert(instance != null, "did not make recursive bound object");
             IntegrationTest.Assert(instance.GetBazService() == bazSingleton);
+        }
+
+        /// <summary>
+        /// the Make method should be able to make a concrete object that wasn't bound, so long as the constructor paramters are made up of bound or passed objects.e
+        /// </summary>
+        void TestMakeLateBoundClassWithServices()
+        {
+            var instance = IOC.Make<NonBoundWithServices>();
+            IntegrationTest.Assert(instance != null, "should have made instance of NonBoundWithServices");
+            IntegrationTest.Assert(instance.GetFooService() == fooService, "should have passed foo service registered in IOC");
         }
     }
 }

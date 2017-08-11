@@ -3,7 +3,7 @@ using System;
 namespace Fetch
 {
     /// <summary>
-    /// Holds a single reservation that will be fulfilled in the future.
+    /// A representation of a parameter in an obejct constructor.
     /// </summary>
     public class Parameter
     {

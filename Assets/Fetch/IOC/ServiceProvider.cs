@@ -11,23 +11,20 @@ namespace Fetch
     /// </summary>
     public class ServiceProvider : MonoBehaviour
     {
-
-        // store bindings for this provider
+        /// <summary>
+        /// store bindings for this provider
+        /// </summary>
         private List<Binding> bindings = new List<Binding>();
 
-        // true if provider was popualted
+        /// <summary>
+        /// true if provider was popualted
+        /// </summary>
         private bool populated = false;
 
-        void Awake()
-        {
-            // do logic
-        }
-
-        void Update()
-        {
-            // do logic
-        }
-
+        /// <summary>
+        /// Returns a list of bindings for this provider.
+        /// </summary>
+        /// <returns>list of bindings</returns>
         public List<Binding> GetBindings()
         {
             CallPopulate();
@@ -73,7 +70,7 @@ namespace Fetch
         /// Bind a query type to a resolve type. Will be returned as a singleton (only one of the
         /// resolve type will be created, and that instance will be shared with whoever asks for it).
         /// </summary>
-        protected void Singleton<Q, R>()
+        public void Singleton<Q, R>()
         {
             bindings.Add(new Binding
             {

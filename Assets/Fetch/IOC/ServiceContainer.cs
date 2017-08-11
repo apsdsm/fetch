@@ -25,6 +25,9 @@ namespace Fetch
         // list of the services that are attached to this IOC Container
         private List<Service> services = new List<Service>();
 
+        /// <summary>
+        /// If the container is set to persist, will check the object's DontDestroyOnLoad flag.
+        /// </summary>
         void Awake()
         {
             if (persistAlways)
@@ -33,11 +36,10 @@ namespace Fetch
             }
         }
 
-        void Update()
-        {
-            // do logic
-        }
-
+        /// <summary>
+        /// Return a list of services for this container.
+        /// </summary>
+        /// <returns>List of services</returns>
         public List<Service> GetServices()
         {
             Populate();

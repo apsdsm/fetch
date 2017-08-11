@@ -3,6 +3,7 @@ using UnityEngine.SceneManagement;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEditor;
 
 namespace Fetch
 {
@@ -26,22 +27,28 @@ namespace Fetch
         static List<Binding> bindings;
 
         /// <summary>
+        /// This is a static cache of injected bindings. This can be used to return mock data for testing, or for
+        /// injecting an instantiated biding at run time that will override previous bindings.
+        /// </summary>
+        private static List<Binding> injected;
+        
+        /// <summary>
         /// True if the IOC has been populated for this scene. It should be set to false when the scene changes.
         /// </summary>
-        static bool populated = false;
+        static bool populated;
 
         /// <summary>
         /// True if the scene change events have been registered. These events are used to keep track of when the bindings need to be refreshed.
         /// </summary>
-        static bool eventsRegistered = false;
+        static bool eventsRegistered;
 
-        static private void OnActiveSceneChanged(Scene i_preChangedScene, Scene i_postChangedScene)
+        private static void OnActiveSceneChanged(Scene i_preChangedScene, Scene i_postChangedScene)
         {
             populated = false;
             Debug.LogFormat("OnActiveSceneChanged() preChangedScene:{0} postChangedScene:{1}", i_preChangedScene.name, i_postChangedScene.name);
         }
 
-        static private void OnSceneLoaded(Scene i_loadedScene, LoadSceneMode i_mode)
+        private static void OnSceneLoaded(Scene i_loadedScene, LoadSceneMode i_mode)
         {
             populated = false;
             Debug.LogFormat("OnSceneLoaded() current:{0} loadedScene:{1} mode:{2}", SceneManager.GetActiveScene().name, i_loadedScene.name, i_mode);
@@ -170,11 +177,26 @@ namespace Fetch
         {
             Populate();
 
-            Binding binding = null;
-
+            Binding binding;           
+            
+            // if there are any injected bindings that match, return that
+            if (injected != null && injected.Count >= 1 && (binding = injected.FirstOrDefault(x => x.queryType == type)) != null)
+            {
+                return binding.instance;
+            }
+            
+            // try to make a new binding from 
             if (bindings == null || (binding = bindings.FirstOrDefault(x => x.queryType == type)) == null)
             {
-                throw new NoSuchBindingException("Was not able to make an object of type <" + type.ToString() + "> because there is no such binding.");
+                if (type.IsInterface || type.IsAbstract)
+                {
+                    throw new NoSuchBindingException("Cannot late bind interfaces or abstract classes.");
+                }
+                
+                binding = new Binding();
+                binding.queryType = type;
+                binding.resolveType = type;
+                binding.singleton = false;
             }
 
             var ctors = binding.resolveType.GetConstructors();
@@ -273,6 +295,39 @@ namespace Fetch
 
             // if we couldn't make one of the thigns we wanted to make, return the default for that thing
             return null;
+        }
+
+        /// <summary>
+        /// Inject an instance of an object that should be returned when the user queries for a binding of type T.
+        /// This can conceivably be used for late binding at runtime, but it's intended purpose is to allow for easier
+        /// testing of classes that rely on hard-to-reach IOC calls.
+        /// 
+        /// After using InjectBiding, restore the IOC to its previous state using 'ClearInjectedBindings'.
+        /// </summary>
+        /// <param name="instance">A concrete instance of the object to be returned</param>
+        /// <typeparam name="T">The type of object that will be returned</typeparam>
+        public static void InjectBinding<T>(T instance)
+        {
+            if (injected == null)
+            {
+                injected = new List<Binding>();
+            }
+            
+            var binding = new Binding();
+            binding.instance = instance;
+            binding.queryType = typeof(T);
+            binding.resolveType = typeof(T);
+            
+            injected.Add(binding);
+        }
+
+        /// <summary>
+        /// Clears any injected bindings, returning the cache to null. This is not done automatically, so be aware that
+        /// if you spam the InjectedBindings method the objects that were bound won't be properly garbage collected.
+        /// </summary>
+        public static void ClearInjectedBindings()
+        {
+            injected = null;
         }
     }
 }
