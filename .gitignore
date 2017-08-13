@@ -29,3 +29,7 @@
 # Unity3D Generated File On Crash Reports
 sysinfo.txt
 
+.idea/
+Assets/Plugins.meta
+Assets/Plugins/Editor.meta
+Assets/Plugins/

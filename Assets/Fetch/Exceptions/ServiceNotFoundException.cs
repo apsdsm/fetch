@@ -3,8 +3,7 @@
 namespace Fetch
 {
     /// <summary>
-    /// This exception is called when the RegistryService cannot find an appropriate setter for
-    /// a reservation.
+    /// Called when the IOC cannot resolve a requested service.
     /// </summary>
     public class ServiceNotFoundException : Exception
     {
