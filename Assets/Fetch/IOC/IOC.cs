@@ -1,9 +1,8 @@
-﻿using UnityEngine;
+﻿﻿using UnityEngine;
 using UnityEngine.SceneManagement;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEditor;
 
 namespace Fetch
 {
@@ -42,16 +41,26 @@ namespace Fetch
         /// </summary>
         static bool eventsRegistered;
 
+        /// <summary>
+        /// When the scene is changed, set the populated flag to false to allow re-population.
+        /// </summary>
+        /// <param name="i_preChangedScene">prev scene</param>
+        /// <param name="i_postChangedScene">current scene</param>
         private static void OnActiveSceneChanged(Scene i_preChangedScene, Scene i_postChangedScene)
         {
             populated = false;
-            Debug.LogFormat("OnActiveSceneChanged() preChangedScene:{0} postChangedScene:{1}", i_preChangedScene.name, i_postChangedScene.name);
+            //Debug.LogFormat("OnActiveSceneChanged() preChangedScene:{0} postChangedScene:{1}", i_preChangedScene.name, i_postChangedScene.name);
         }
 
+        /// <summary>
+        /// On scene loaded, set popualted to false to allow population
+        /// </summary>
+        /// <param name="i_loadedScene">loaded scene</param>
+        /// <param name="i_mode">scene mode</param>
         private static void OnSceneLoaded(Scene i_loadedScene, LoadSceneMode i_mode)
         {
             populated = false;
-            Debug.LogFormat("OnSceneLoaded() current:{0} loadedScene:{1} mode:{2}", SceneManager.GetActiveScene().name, i_loadedScene.name, i_mode);
+            //Debug.LogFormat("OnSceneLoaded() current:{0} loadedScene:{1} mode:{2}", SceneManager.GetActiveScene().name, i_loadedScene.name, i_mode);
         }
 
         /// <summary>
@@ -95,39 +104,21 @@ namespace Fetch
         }
 
         /// <summary>
-        /// Returns a reference to the service that implements the given type, or throws an error.
-        /// </summary>
-        /// <param name="type">Type to search for</param>
-        /// <returns>An object that implements the given type</returns>
-        public static System.Object Resolve(Type type)
-        {
-            Populate();
-            var resolved = services.FirstOrDefault(x => x.type == type);
-
-            if (resolved == null)
-            {
-                throw new ServiceNotFoundException("could not find: " + type.ToString());
-            }
-
-            return resolved.reference;
-        }
-
-        /// <summary>
-        /// Alternate syntax for Resolve(Type).
+        /// Resolve the requested type of the service or throw an error.
         /// </summary>
         /// <returns>A resolved instance of type T</returns>
+        /// <typeparam name="T">The type of object to resolve</typeparam>
         /// <exception cref="ServiceNotFoundException">called if service not found</exception>
         public static T Resolve<T>()
         {
-            Populate();
-            var resolved = services.FirstOrDefault(x => x.type == typeof(T));
+            var resolved = ResolveOrNull(typeof(T));
 
             if (resolved == null)
             {
                 throw new ServiceNotFoundException("could not find: " + typeof(T).ToString());
             }
 
-            return (T)resolved.reference;
+            return (T)resolved;
         }
 
         /// <summary>
@@ -140,29 +131,46 @@ namespace Fetch
         }
 
         /// <summary>
-        /// Resolve the requested type of the service or return null. Does not use generics.
+        /// Resolve the requested type of the service or return null.
         /// </summary>
         /// <param name="type">The type of the service to look for</param>
         /// <returns>A non-typecast reference to the object</returns>
-        public static System.Object ResolveOrNull(Type type)
+        private static System.Object ResolveOrNull(Type type)
         {
             Populate();
+            
             var service = services.FirstOrDefault(x => x.type == type);
+            
             if (service == null)
             {
                 return null;
             }
+            
             return service.reference;
         }
 
         /// <summary>
-        /// Generic version of Make(Type, System.Object[]).
+        /// Dynamically make a new instance of an object of type T at run time.
         /// </summary>
-        /// <param name="parameters">a list of parameters you want to use to create the instance</param>
+        /// <param name="parameters">a list of parameters that will be used to create the object before bindings or services are queried</param>
+        /// <typeparam name="T">The type of object to create</typeparam>
         /// <returns>an instance of the created object, else the default value for that object</returns>
         public static T Make<T>(params System.Object[] parameters)
         {
             return (T)Make(typeof(T), parameters);
+        }
+
+        /// <summary>
+        /// Dynamically make a new instance of an object of type T at run time, cast as R. This version of the method
+        /// is useful for returning concrete classes in situations where you want to use one of their interfaces.
+        /// </summary>
+        /// <param name="parameters">a list of parameters that will be used to create the object before bindings or services are queried</param>
+        /// <typeparam name="T">The type of object to create</typeparam>
+        /// <typeparam name="R">The type the returned object will be cast as</typeparam>
+        /// <returns></returns>
+        public static R Make<T, R>(params System.Object[] parameters)
+        {
+            return (R) Make(typeof(T), parameters);
         }
 
         /// <summary>
@@ -173,7 +181,7 @@ namespace Fetch
         /// <param name="type">type of object to build</param>
         /// <param name="parameters">a list of parameters you want to use to create the instance</param>
         /// <returns>reference to build object</returns>
-        public static System.Object Make(Type type, params System.Object[] parameters)
+        private static System.Object Make(Type type, params System.Object[] parameters)
         {
             Populate();
 
@@ -185,7 +193,7 @@ namespace Fetch
                 return binding.instance;
             }
             
-            // try to make a new binding from 
+            // try to make a late binding
             if (bindings == null || (binding = bindings.FirstOrDefault(x => x.queryType == type)) == null)
             {
                 if (type.IsInterface || type.IsAbstract)
@@ -210,7 +218,14 @@ namespace Fetch
             // if class has no constructors, make it without searching for parameters
             if (ctors.Length == 0)
             {
-                return Activator.CreateInstance(binding.resolveType);
+                var instance = Activator.CreateInstance(binding.resolveType);
+
+                if (binding.singleton)
+                {
+                    binding.instance = instance;
+                }
+
+                return instance;
             }
 
             //put the supplied parameters into an array that makes them easier to work with
@@ -306,7 +321,7 @@ namespace Fetch
         /// </summary>
         /// <param name="instance">A concrete instance of the object to be returned</param>
         /// <typeparam name="T">The type of object that will be returned</typeparam>
-        public static void InjectBinding<T>(T instance)
+        public static void InjectBinding<T>(System.Object instance)
         {
             if (injected == null)
             {
@@ -316,7 +331,7 @@ namespace Fetch
             var binding = new Binding();
             binding.instance = instance;
             binding.queryType = typeof(T);
-            binding.resolveType = typeof(T);
+            binding.resolveType = instance.GetType();
             
             injected.Add(binding);
         }
