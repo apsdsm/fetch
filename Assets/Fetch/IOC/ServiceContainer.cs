@@ -16,13 +16,19 @@ namespace Fetch
     /// </summary>
     public class ServiceContainer : MonoBehaviour
     {
-        // IOC will persist between level loads
-        public bool persistAlways = false;
+        /// <summary>
+        /// IOC will persist between level loads
+        /// </summary>
+        public bool persistAlways;
 
-        // true if the service provider has been populated
-        private bool populated = false;
+        /// <summary>
+        /// true if the service provider has been populated
+        /// </summary>
+        private bool populated;
 
-        // list of the services that are attached to this IOC Container
+        /// <summary>
+        /// list of the services that are attached to this IOC Container
+        /// </summary>
         private List<Service> services = new List<Service>();
 
         /// <summary>
