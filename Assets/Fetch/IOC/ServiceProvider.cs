@@ -19,7 +19,7 @@ namespace Fetch
         /// <summary>
         /// true if provider was popualted
         /// </summary>
-        private bool populated = false;
+        private bool populated;
 
         /// <summary>
         /// Returns a list of bindings for this provider.
