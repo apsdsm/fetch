@@ -108,11 +108,11 @@ class MyServiceProvider : Fetch.ServiceProvider
     void Populate ()
     {
         // a new one of these will be provided each time
-        Bind<IInputService><TouchInputService>();
-        Bind<IAudioService><StreamingAudioService>();
+        Bind<IInputService, TouchInputService>();
+        Bind<IAudioService, StreamingAudioService>();
         
         // only one of these will ever be created
-        Singleton<IScoreManager><ScoreManager>();
+        Singleton<IScoreManager, ScoreManager>();
     }
 }
 ```
