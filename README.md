@@ -208,11 +208,15 @@ IOC.Make<IGoblin>("fuge", 100);
 
 The first two parameters would be passed along appropriately, and the last (missing) parameter will be filled in by Fetch. If two or more parameters share the same type, then Fetch will feed them to the constructor in the order they are received by `Make`.
 
-Finally, it is also possible to use Fetch to satisfy the dependency on concrete classes that are not registered in the service provider. Fetch will look at the constructor for the class and try find matching dependencies at run time. This means that the above class could also be resolved as:
+### Make Concrete Classes
+
+It is possible to use Fetch to satisfy the dependency on concrete classes that are not registered in the service provider. Fetch will look at the constructor for the class and try find matching dependencies at run time. This means that the above class could also be resolved as:
 
 ```csharp
 IOC.Make<Goblin>("puga", 50);
 ```
+
+There is also an alternative version of this method, `IOC.Make<T,R>()` which will return the object of type `T` cast as type `R`.
 
 ## Inject Bindings (Testing) 
 
@@ -260,6 +264,6 @@ This is a very small project and I don't expect any outside contribution. Howeve
 
 ## Installing
 
-There is a package in the `Packages` folder that you can import into your Unity projects. This will install Fetch without the tests. If you want to work on the code itself, then I suggest checking out the repository and workng witht hat.
+There is a package in the `Packages` folder that you can import into your Unity projects. This will install Fetch without the tests. If you want to work on improving Fetch itself, then I suggest checking out the repository.
 
-Once this project feels a little more mature, I'll see about submitting a version to the asset store for easier installation.
+Once this project feels a little more mature (read: the public interface doesn't change so often), I'll see about submitting a version to the asset store for easier installation.
