@@ -6,7 +6,7 @@ Fetch is a very light weight IOC Container for Unity. It allows you decouple you
 
 Fetch was designed to facilitate a specific Unity coding style that I've been using lately, so it's not really out there to implement everything you might want to see in an IOC Container. If you'll like an IOC project for Unity that is much more full featured and mature, then I suggest you check out [StrangeIoC](http://strangeioc.github.io/strangeioc/), which does way more things than Fetch sets out to achieve (though, I should note I haven't actually *used* this project, and it looks like it hasn't been updated for a while). On the other hand, if StrangeIoC seems to do way too much, and all you need is a system for fetching your service components by interface, then Fetch might be right for you.
 
-Fetch allows you to store services in a number of ways, and access them relatively painlessly from inside your objects. It also has a fairly early stage object generation system, so you can use it to create new instances of services or object without having to use the `new` command, with automatic dependency serrching if you need that. 
+Fetch allows you to store services in a number of ways, and access them relatively painlessly from inside your objects. It also has a fairly early stage object generation system, so you can use it to create new instances of services or object without having to use the `new` command, with automatic dependency searching if you need that. 
 
 ## Making Services Available To Fetch
 
@@ -29,7 +29,7 @@ ServiceContainer
 
 In the above arrangement, you would get an instance of the `TouchInputMonoBehaviour` object by asking the IOC container to resolve `IInputService`.
 
-These objects can be retreived using `IOC.Retreive<T>()`. For example to fetch the`TouchInputMonoBehaviour` above, you would:
+These objects can be retrieved using `IOC.Retreive<T>()`. For example to fetch the`TouchInputMonoBehaviour` above, you would:
 
 ```csharp
 IOC.Retreive<IInputService>();
@@ -267,3 +267,11 @@ This is a very small project and I don't expect any outside contribution. Howeve
 There is a package in the `Packages` folder that you can import into your Unity projects. This will install Fetch without the tests. If you want to work on improving Fetch itself, then I suggest checking out the repository.
 
 Once this project feels a little more mature (read: the public interface doesn't change so often), I'll see about submitting a version to the asset store for easier installation.
+
+## About Tests
+
+This project used to have a pretty complete suite of tests. However, due to the nature of the project they were all what Unity used to call Integration Tests. With the more recent releases of Unity, these tests have been deprecated, and including them with the package causes a bunch of unrecoverable errors. 
+
+While I'd like to port those existing tests over to whatever it is that Unity is currently using, that's not the sort of thing I currently have time for. Obviously writing tests is important (this frame was written in part to facilitate the writing of code which is easier to test) but writing *code* is arguably *more* important. Particularly when Unity can pull the rug out from under you and break your whole test suite whenever they feel like it.
+
+If you are actually able to get the tests working with the current Unity setup, then I'd welcome a pull request. Otherwise I'm just not sure I have it in me to spend however long it would take to fix them myself. For now I'm leaving the tests in the root directory of the project but after I have a chance to snapshot them in a future release, I'll probably just remove them from source control.
