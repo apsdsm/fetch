@@ -25,12 +25,19 @@ namespace Fetch
         /// </summary>
         static List<Binding> bindings;
 
+       /// <summary>
+        /// This is a static cache of registrations made with the container. Objects can 
+        /// register themselves here to make lookup faster in casees were GAmeObject.Find() 
+        /// would be called.
+        /// </summary>
+        private static List<Registration> registrations;
+
         /// <summary>
         /// This is a static cache of injected bindings. This can be used to return mock data for testing, or for
         /// injecting an instantiated biding at run time that will override previous bindings.
         /// </summary>
         private static List<Binding> injected;
-        
+
         /// <summary>
         /// True if the IOC has been populated for this scene. It should be set to false when the scene changes.
         /// </summary>
@@ -181,7 +188,7 @@ namespace Fetch
         /// <param name="type">type of object to build</param>
         /// <param name="parameters">a list of parameters you want to use to create the instance</param>
         /// <returns>reference to build object</returns>
-        private static System.Object Make(Type type, params System.Object[] parameters)
+        public static System.Object Make(Type type, params System.Object[] parameters)
         {
             Populate();
 
@@ -343,6 +350,47 @@ namespace Fetch
         public static void ClearInjectedBindings()
         {
             injected = null;
+        }
+
+        /// <summary>
+        /// Register an object of type <T> by name. Used when an object would normally be found
+        /// with multiple calls to GameObject.Find().
+        /// </summary>
+        /// <param name="name">Name of object to register.</param>
+        /// <typeparam name="T">The type of object to register as.</typeparam>
+        /// <param name="instance">reference to object</param>
+        public static void Register<T>(string name, System.Object instance) 
+        {
+            if (registrations == null) {
+                registrations = new List<Registration>();
+            }
+
+            var registration = new Registration();
+            registration.name = name;
+            registration.type = typeof(T);
+            registration.instance = instance;
+
+            registrations.Add(registration);
+        }
+
+        /// <summary>
+        /// Search for a registration matching the type and name.
+        /// </summary>
+        /// <param name="name">The name of the object to search for.</param>
+        /// <typeparam name="T">The type of the object to search for.</typeparam>
+        /// <returns>regerence to registered object.</returns>
+        public static T Find<T>(string name) 
+        {
+            Registration r;           
+            Type t = typeof(T);
+
+            // if there are any injected bindings that match, return that
+            if (registrations != null && registrations.Count >= 1 && (r = registrations.FirstOrDefault(x => x.type == t && x.name == name)) != null)
+            {
+                return (T)r.instance;
+            }
+
+            throw new NoSuchRegistrationException("could not find " + t.ToString() + " with name: " + name);
         }
     }
 }
