@@ -4,15 +4,19 @@ Fetch is a very light weight IOC Container for Unity. It allows you decouple you
 
 ## About
 
-Fetch was designed to facilitate a specific Unity coding style that I've been using lately, so it's not really out there to implement everything you might want to see in an IOC Container. If you'll like an IOC project for Unity that is much more full featured and mature, then I suggest you check out [StrangeIoC](http://strangeioc.github.io/strangeioc/), which does way more things than Fetch sets out to achieve (though, I should note I haven't actually *used* this project, and it looks like it hasn't been updated for a while). On the other hand, if StrangeIoC seems to do way too much, and all you need is a system for fetching your service components by interface, then Fetch might be right for you.
+Fetch is an IOC container for Unity that makes it easier to resolve services and objects from inside your objects. It has: 
 
-Fetch allows you to store services in a number of ways, and access them relatively painlessly from inside your objects. It also has a fairly early stage object generation system, so you can use it to create new instances of services or object without having to use the `new` command, with automatic dependency searching if you need that. 
+- a service resolver for pulling in concrete classes based on their interfaces
+- an object generation system for building objects with automatic dependency identification
+- helper methods for making loading resources or finding game scene objects easier and faster. 
 
-## Making Services Available To Fetch
+You can think of Fetch as an all around Nice Guy who wants to get your objects to you ASAP.
 
-There are three ways that you can make a service available for retrieval or creation via Fetch:
+## Using Fetch to Get Services or Objects
 
-### Access MonoBehaviours Via Service Container Children
+There are a number of ways you can make a service available for retrieval or creation via Fetch:
+
+### MonoBehaviour Services Via The Service Container
 
 A Service Container is a MonoBehaviour object that will, when queried, make a list of all the child objects that are available to it. Anything you add as a child object to the service container is accessible via the IOC.
 
@@ -35,7 +39,7 @@ These objects can be retrieved using `IOC.Retreive<T>()`. For example to fetch t
 IOC.Retreive<IInputService>();
 ```
 
-## Access Non MonoBehaviour Services Via Service Container Proxies
+### Non MonoBehaviour Services Via The Service Container
 
 In addition to putting MonoBehaviours into a Service Container, you can also use a MonoBehaviour as a bridge to another object via a Proxy. You do this by making your MonoBehaviour implement the `Fetch.IProxy` interface. Any object that implements `IProxy<T>` must provide a method `GetProxy` that returns an instance of `<T>`.
 
@@ -63,17 +67,12 @@ public class ScoreManager : IScoreManager () {
 }
 ```
 
-We want `ScoreManager` accessible from the IOC Container, but since it does not derive from MonoBehaviour, we can't add it as a child of the IOC Service. Instead of adding the methods directly to a MonoBehaviour object, we can create a proxy class:
+We want `ScoreManager` accessible from the IOC Container, but since it does not derive from MonoBehaviour, we can't add it as a child of the IOC Service. To access the service we can create a proxy class:
 
 ```csharp
 class ScoreManagerProxy : MonoBehaviour, Fetch.IProxy<IScoreManager> {
     
     private scoreManager;
-
-    void Awake() 
-    {
-        scoreManager = new ScoreManager();
-    }
 
     public IScoreManager GetProxy()
     {
@@ -86,19 +85,21 @@ class ScoreManagerProxy : MonoBehaviour, Fetch.IProxy<IScoreManager> {
 }
 ```
 
-This allows you to make game services without them having to be MonoBehaviours, which in turn will make your code easier to test.
-
 Objects stored via proxy are fetched like anything else in the Service Container. For example to fetch the proxied ScoreManager class, you would:
 
 ```csharp
-IOC.Resolve<IFooService>();
+IOC.Resolve<IScoreManager>();
 ```
 
 ### Make New Instance Using Service Provider Binding
 
-It is possible to directly bind resolution classes to the IOC using a `ServiceProvider` class. To do this, extend from the base `ServiceProvider` class, and add a Populate() method. Inside the Populate method, use the `Bind` and `Singleton` methods to make new class mappings available to the IOC container. The ServiceProvider class extends from MonoBehaviour, so you can add it to your scenes to make the bindings available on a per-scene basis.
+It is possible to directly bind resolution classes to the IOC using a `ServiceProvider` class. To do this, create an object that extends the base `ServiceProvider` class, and add a Populate() method. Inside the Populate method, use the `Bind` and `Singleton` methods to make new class mappings available to the IOC container. The ServiceProvider class extends from MonoBehaviour, so you can add it to your scenes to make the bindings available on a per-scene basis.
 
 Mappings can be defined using `Bind` or `Singleton`, and are accessible using the `IOC.Make<T>` method.
+
+Bind mappings are created each time `Make` is called. Each call gets their own instance.
+
+Singleton mappings are created only the first `Make` is called, and the same reference is passed out to subsequent calls.
 
 For example:
 
@@ -122,8 +123,6 @@ To make a the `TouchInputService` above, you would:
 ```csharp
 IOC.Make<IInputService>();
 ```
-
-Note that anything bound with the singleton behaviour will only be made the first time Make is called. Subsequent calls to make will return the previously made instance.
 
 ## Dependency Injection
 
@@ -220,7 +219,7 @@ There is also an alternative version of this method, `IOC.Make<T,R>()` which wil
 
 ## Inject Bindings (Testing) 
 
-** This Feature is still in prototype **
+**This Feature is still in prototype**
 
 It's possible to inject a binding and its resolution at run time. This will make Fetch always return the specified instance whenever a call to `Make` is received with the matching type. This is done using the `IOC.InjectBinding<T>(T)` method. For example:
 
@@ -238,33 +237,37 @@ Using `InjectBinding` will currently ignore any parameters that are passed to th
 
 This feature is intended for use testing classes that have calls to the IOC in hard to reach places.
 
+## Register and Find Objects
+
+There are certain times where you just want to `Find` something in your scene. The Find method is expensive, and using it constantly can quickly impact game performance. For this use case, you can use the IOC.Register method, which will store a cached reference to the registered object that can be resolved with IOC.Find.
+
+## Loading Resources
+
+In the interest of keeping things complete, you can load resources using the `IOC.Resource` method, which acts as a short cut for `Resources.Load`.
+
 ## Why should you an IOC Container?
 
 Putting references to your services in an IOC container allows you to set up your game objects so that they're working against the interfaces of your services, rather than directly referencing the current implementation. This cleans up your service location quite a lot, and keeps your objects less tightly coupled to one another - you can replace the whole input service class used in your game by putting a new input service object in the IOC, or binding a new one in your service provider, rather than changing the references in all your objects.
 
 It also means you don't have to fall back on the Singleton pattern so much in your code. You don't need to set a monolithic `InputService` class, with a static `GetInstance()` method. Instead, you can use a service provider with a Singleton mapping, or you could create a single service, and make it the child of a service container.
 
-Using an IOC Container to provide your services and objects via interfaces will also make your code *much easier to test*.
+Using an IOC Container to provide your services and objects via interfaces will also make your code *much easier to test.
 
-## Multiple Service Containers, Persistent Service Containers
+## Multiple and Persistent Service Containers, Providers
 
 You can include more than one Service Container in your scene, and add different services to each. 
 
-Why do this? IOC Containers can also be set as *persistent*, which means they won't be destroyed between scenes. If it suits your architecture, you could set up a single IOC that holds all services uses throughout the lifetime of your game, and then include other, sub IOC Containers for specific scenes.
+Why do this? IOC Containers can also be set as *persistent*, which means they won't be destroyed between scenes. If it suits your architecture, you could set up a single IOC that holds all services uses throughout the lifetime of your game, and then include other, sub IOC Containers for specific scenes. There are no performance benefits from splitting up your providers, though.
 
 **This isn't a heavily tested feature, so please use it with caution. If you do notice bugs and figure out how to resolve them please submit a bug report or (better yet) a pull request with a fix.**
 
-## Multiple Service Providers
-
-You can also include multiple service providers, but they aren't persistent between scenes. You will need to include them in each scene where the services are required.
-
 ## Contributing
 
-This is a very small project and I don't expect any outside contribution. However if you do use Fetch and you find a bug, please report it. If you fix the bug, please submit a PR together with an explanation of the bug. I would appreciate if fixes were sent with tests, but I understand that writing tests for this kind of thing is kind of difficult. I have included as many tests as I could together with the source (this requires the Unity Test Tools to run).
+This is a very small project and I don't expect any outside contribution. However if you do use Fetch and you find a bug, please report it. If you fix the bug, please submit a PR together with an explanation of the bug, how to replicate it, and how the fix repairs these.
 
 ## Installing
 
-There is a package in the `Packages` folder that you can import into your Unity projects. This will install Fetch without the tests. If you want to work on improving Fetch itself, then I suggest checking out the repository.
+There is a package in the `Packages` folder that you can import into your Unity projects. If you want to work on improving Fetch itself, then I suggest checking out the repository. The package is not guaranteed to be always up to date, so if you want the most recent version, download the source and copy the Fetch directory into your project.
 
 Once this project feels a little more mature (read: the public interface doesn't change so often), I'll see about submitting a version to the asset store for easier installation.
 
@@ -275,3 +278,11 @@ This project used to have a pretty complete suite of tests. However, due to the 
 While I'd like to port those existing tests over to whatever it is that Unity is currently using, that's not the sort of thing I currently have time for. Obviously writing tests is important (this frame was written in part to facilitate the writing of code which is easier to test) but writing *code* is arguably *more* important. Particularly when Unity can pull the rug out from under you and break your whole test suite whenever they feel like it.
 
 If you are actually able to get the tests working with the current Unity setup, then I'd welcome a pull request. Otherwise I'm just not sure I have it in me to spend however long it would take to fix them myself. For now I'm leaving the tests in the root directory of the project but after I have a chance to snapshot them in a future release, I'll probably just remove them from source control.
+
+## Alternatives
+
+Other tools that do something similar to Fetch:
+
+[StrangeIoC](http://strangeioc.github.io/strangeioc/)
+
+If you have more please let me know!
