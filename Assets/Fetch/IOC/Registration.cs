@@ -1,12 +1,10 @@
 using System;
 
-namespace Fetch
-{
+namespace Fetch {
     /// <summary>
     /// A link between a query type and a concrete, instantiable type.
     /// </summary>
-    public class Registration
-    {
+    public class Registration {
         /// <summary>
         /// The name of this object
         /// </summary>

@@ -1,7 +1,6 @@
-﻿using UnityEngine;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using UnityEngine;
 
 namespace Fetch
 {
@@ -17,7 +16,7 @@ namespace Fetch
     public class ServiceContainer : MonoBehaviour
     {
         /// <summary>
-        /// IOC will persist between level loads
+        /// provider will persist between level loads
         /// </summary>
         public bool persistAlways;
 
@@ -111,4 +110,3 @@ namespace Fetch
         }
     }
 }
-

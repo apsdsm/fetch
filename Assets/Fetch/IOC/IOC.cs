@@ -1,17 +1,15 @@
-﻿﻿using UnityEngine;
-using UnityEngine.SceneManagement;
-using System;
+﻿﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
+using UnityEngine.SceneManagement;
 
-namespace Fetch
-{
+namespace Fetch {
 
     /// <summary>
     /// This class contains the static methods for the IOC.
     /// </summary>
-    public static class IOC
-    {
+    public static class IOC {
 
         /// <summary>
         /// This is a static cache of all the services inside all the IOC containers
@@ -25,7 +23,7 @@ namespace Fetch
         /// </summary>
         static List<Binding> bindings;
 
-       /// <summary>
+        /// <summary>
         /// This is a static cache of registrations made with the container. Objects can 
         /// register themselves here to make lookup faster in casees were GAmeObject.Find() 
         /// would be called.
@@ -53,8 +51,7 @@ namespace Fetch
         /// </summary>
         /// <param name="i_preChangedScene">prev scene</param>
         /// <param name="i_postChangedScene">current scene</param>
-        private static void OnActiveSceneChanged(Scene i_preChangedScene, Scene i_postChangedScene)
-        {
+        private static void OnActiveSceneChanged (Scene i_preChangedScene, Scene i_postChangedScene) {
             populated = false;
             //Debug.LogFormat("OnActiveSceneChanged() preChangedScene:{0} postChangedScene:{1}", i_preChangedScene.name, i_postChangedScene.name);
         }
@@ -64,8 +61,7 @@ namespace Fetch
         /// </summary>
         /// <param name="i_loadedScene">loaded scene</param>
         /// <param name="i_mode">scene mode</param>
-        private static void OnSceneLoaded(Scene i_loadedScene, LoadSceneMode i_mode)
-        {
+        private static void OnSceneLoaded (Scene i_loadedScene, LoadSceneMode i_mode) {
             populated = false;
             //Debug.LogFormat("OnSceneLoaded() current:{0} loadedScene:{1} mode:{2}", SceneManager.GetActiveScene().name, i_loadedScene.name, i_mode);
         }
@@ -75,36 +71,31 @@ namespace Fetch
         /// Each container that is added will be told to populate itself and its
         /// services will be added to the cache.
         /// </summary>
-        public static void Populate()
-        {
-            if (populated)
-            {
+        public static void Populate () {
+            if (populated) {
                 return;
             }
 
-            if (!eventsRegistered)
-            {
+            if (!eventsRegistered) {
                 SceneManager.activeSceneChanged += OnActiveSceneChanged;
                 SceneManager.sceneLoaded += OnSceneLoaded;
                 eventsRegistered = true;
             }
 
-            var serviceContainers = (ServiceContainer[])GameObject.FindObjectsOfType(typeof(ServiceContainer));
+            var serviceContainers = (ServiceContainer[]) GameObject.FindObjectsOfType (typeof (ServiceContainer));
 
-            services = new List<Service>();
+            services = new List<Service> ();
 
-            foreach (var container in serviceContainers)
-            {
-                services = services.Union(container.GetServices()).ToList();
+            foreach (var container in serviceContainers) {
+                services = services.Union (container.GetServices ()).ToList ();
             }
 
-            bindings = new List<Binding>();
+            bindings = new List<Binding> ();
 
-            var serviceProviders = GameObject.FindObjectsOfType<ServiceProvider>();
+            var serviceProviders = GameObject.FindObjectsOfType<ServiceProvider> ();
 
-            foreach (var provider in serviceProviders)
-            {
-                bindings = bindings.Union(provider.GetBindings()).ToList();
+            foreach (var provider in serviceProviders) {
+                bindings = bindings.Union (provider.GetBindings ()).ToList ();
             }
 
             populated = true;
@@ -116,25 +107,22 @@ namespace Fetch
         /// <returns>A resolved instance of type T</returns>
         /// <typeparam name="T">The type of object to resolve</typeparam>
         /// <exception cref="ServiceNotFoundException">called if service not found</exception>
-        public static T Resolve<T>()
-        {
-            var resolved = ResolveOrNull(typeof(T));
+        public static T Resolve<T> () {
+            var resolved = ResolveOrNull (typeof (T));
 
-            if (resolved == null)
-            {
-                throw new ServiceNotFoundException("could not find: " + typeof(T).ToString());
+            if (resolved == null) {
+                throw new ServiceNotFoundException ("could not find: " + typeof (T).ToString ());
             }
 
-            return (T)resolved;
+            return (T) resolved;
         }
 
         /// <summary>
         /// Alterate syntax for ResolveOrNull(Type).
         /// </summary>
         /// <returns></returns>
-        public static T ResolveOrNull<T>()
-        {
-            return (T)ResolveOrNull(typeof(T));
+        public static T ResolveOrNull<T> () {
+            return (T) ResolveOrNull (typeof (T));
         }
 
         /// <summary>
@@ -142,17 +130,15 @@ namespace Fetch
         /// </summary>
         /// <param name="type">The type of the service to look for</param>
         /// <returns>A non-typecast reference to the object</returns>
-        private static System.Object ResolveOrNull(Type type)
-        {
-            Populate();
-            
-            var service = services.FirstOrDefault(x => x.type == type);
-            
-            if (service == null)
-            {
+        private static System.Object ResolveOrNull (Type type) {
+            Populate ();
+
+            var service = services.FirstOrDefault (x => x.type == type);
+
+            if (service == null) {
                 return null;
             }
-            
+
             return service.reference;
         }
 
@@ -162,9 +148,8 @@ namespace Fetch
         /// <param name="parameters">a list of parameters that will be used to create the object before bindings or services are queried</param>
         /// <typeparam name="T">The type of object to create</typeparam>
         /// <returns>an instance of the created object, else the default value for that object</returns>
-        public static T Make<T>(params System.Object[] parameters)
-        {
-            return (T)Make(typeof(T), parameters);
+        public static T Make<T> (params System.Object[] parameters) {
+            return (T) Make (typeof (T), parameters);
         }
 
         /// <summary>
@@ -175,9 +160,8 @@ namespace Fetch
         /// <typeparam name="T">The type of object to create</typeparam>
         /// <typeparam name="R">The type the returned object will be cast as</typeparam>
         /// <returns></returns>
-        public static R Make<T, R>(params System.Object[] parameters)
-        {
-            return (R) Make(typeof(T), parameters);
+        public static R Make<T, R> (params System.Object[] parameters) {
+            return (R) Make (typeof (T), parameters);
         }
 
         /// <summary>
@@ -188,47 +172,40 @@ namespace Fetch
         /// <param name="type">type of object to build</param>
         /// <param name="parameters">a list of parameters you want to use to create the instance</param>
         /// <returns>reference to build object</returns>
-        public static System.Object Make(Type type, params System.Object[] parameters)
-        {
-            Populate();
+        public static System.Object Make (Type type, params System.Object[] parameters) {
+            Populate ();
 
-            Binding binding;           
-            
+            Binding binding;
+
             // if there are any injected bindings that match, return that
-            if (injected != null && injected.Count >= 1 && (binding = injected.FirstOrDefault(x => x.queryType == type)) != null)
-            {
+            if (injected != null && injected.Count >= 1 && (binding = injected.FirstOrDefault (x => x.queryType == type)) != null) {
                 return binding.instance;
             }
-            
+
             // try to make a late binding
-            if (bindings == null || (binding = bindings.FirstOrDefault(x => x.queryType == type)) == null)
-            {
-                if (type.IsInterface || type.IsAbstract)
-                {
-                    throw new NoSuchBindingException("Cannot late bind interfaces or abstract classes.");
+            if (bindings == null || (binding = bindings.FirstOrDefault (x => x.queryType == type)) == null) {
+                if (type.IsInterface || type.IsAbstract) {
+                    throw new NoSuchBindingException ("Cannot late bind interfaces or abstract classes.");
                 }
-                
-                binding = new Binding();
+
+                binding = new Binding ();
                 binding.queryType = type;
                 binding.resolveType = type;
                 binding.singleton = false;
             }
 
-            var ctors = binding.resolveType.GetConstructors();
+            var ctors = binding.resolveType.GetConstructors ();
 
             // if it's a singleton that has previously been resolved, return that
-            if (binding.singleton && binding.instance != null)
-            {
+            if (binding.singleton && binding.instance != null) {
                 return binding.instance;
             }
 
             // if class has no constructors, make it without searching for parameters
-            if (ctors.Length == 0)
-            {
-                var instance = Activator.CreateInstance(binding.resolveType);
+            if (ctors.Length == 0) {
+                var instance = Activator.CreateInstance (binding.resolveType);
 
-                if (binding.singleton)
-                {
+                if (binding.singleton) {
                     binding.instance = instance;
                 }
 
@@ -236,34 +213,27 @@ namespace Fetch
             }
 
             //put the supplied parameters into an array that makes them easier to work with
-            var suppliedParams = new Parameter[parameters.Count()];
+            var suppliedParams = new Parameter[parameters.Count ()];
 
-            for (var i = 0; i < parameters.Length; ++i)
-            {
-                suppliedParams[i] = new Parameter()
-                {
-                    type = parameters[i].GetType(),
+            for (var i = 0; i < parameters.Length; ++i) {
+                suppliedParams[i] = new Parameter () {
+                    type = parameters[i].GetType (),
                     reference = parameters[i],
                     assigned = false,
                 };
             }
 
             // if there are constructors, check each one, and return the first one we can build
-            foreach (var ctor in ctors)
-            {
-                var ctorParams = ctor.GetParameters();
+            foreach (var ctor in ctors) {
+                var ctorParams = ctor.GetParameters ();
                 var paramCount = ctorParams.Length;
                 var filledParams = new System.Object[paramCount];
 
                 // check passed parameters for passable paramters
-                for (var i = 0; i < paramCount; ++i)
-                {
-                    if (filledParams[i] == null)
-                    {
-                        for (var j = 0; j < suppliedParams.Length; ++j)
-                        {
-                            if (suppliedParams[j].assigned == false && suppliedParams[j].type == ctorParams[i].ParameterType)
-                            {
+                for (var i = 0; i < paramCount; ++i) {
+                    if (filledParams[i] == null) {
+                        for (var j = 0; j < suppliedParams.Length; ++j) {
+                            if (suppliedParams[j].assigned == false && suppliedParams[j].type == ctorParams[i].ParameterType) {
                                 filledParams[i] = suppliedParams[j].reference;
                                 suppliedParams[j].assigned = true;
                                 break;
@@ -273,35 +243,28 @@ namespace Fetch
                 }
 
                 // check registered services for passable parameters
-                for (var i = 0; i < paramCount; ++i)
-                {
-                    if (filledParams[i] == null)
-                    {
-                        filledParams[i] = ResolveOrNull(ctorParams[i].ParameterType);
+                for (var i = 0; i < paramCount; ++i) {
+                    if (filledParams[i] == null) {
+                        filledParams[i] = ResolveOrNull (ctorParams[i].ParameterType);
                     }
                 }
 
                 // check to see if there are any parameters that can be created using Make
-                for (var i = 0; i < paramCount; ++i)
-                {
-                    if (filledParams[i] == null)
-                    {
-                        var parameterBinding = bindings.FirstOrDefault(x => x.queryType == ctorParams[i].ParameterType);
+                for (var i = 0; i < paramCount; ++i) {
+                    if (filledParams[i] == null) {
+                        var parameterBinding = bindings.FirstOrDefault (x => x.queryType == ctorParams[i].ParameterType);
 
-                        if (parameterBinding != null)
-                        {
-                            filledParams[i] = Make(parameterBinding.queryType, parameters);
+                        if (parameterBinding != null) {
+                            filledParams[i] = Make (parameterBinding.queryType, parameters);
                         }
                     }
                 }
 
                 // if all params were filled make intance and pass it back
-                if (!filledParams.Contains(null))
-                {
-                    var instance = Activator.CreateInstance(binding.resolveType, filledParams);
+                if (!filledParams.Contains (null)) {
+                    var instance = Activator.CreateInstance (binding.resolveType, filledParams);
 
-                    if (binding.singleton)
-                    {
+                    if (binding.singleton) {
                         binding.instance = instance;
                     }
 
@@ -309,8 +272,7 @@ namespace Fetch
                 }
 
                 // reset the suppliedParameters array
-                for (var i = 0; i < suppliedParams.Length; ++i)
-                {
+                for (var i = 0; i < suppliedParams.Length; ++i) {
                     suppliedParams[i].assigned = false;
                 }
             }
@@ -328,49 +290,45 @@ namespace Fetch
         /// </summary>
         /// <param name="instance">A concrete instance of the object to be returned</param>
         /// <typeparam name="T">The type of object that will be returned</typeparam>
-        public static void InjectBinding<T>(System.Object instance)
-        {
-            if (injected == null)
-            {
-                injected = new List<Binding>();
+        public static void InjectBinding<T> (System.Object instance) {
+            if (injected == null) {
+                injected = new List<Binding> ();
             }
-            
-            var binding = new Binding();
+
+            var binding = new Binding ();
             binding.instance = instance;
-            binding.queryType = typeof(T);
-            binding.resolveType = instance.GetType();
-            
-            injected.Add(binding);
+            binding.queryType = typeof (T);
+            binding.resolveType = instance.GetType ();
+
+            injected.Add (binding);
         }
 
         /// <summary>
         /// Clears any injected bindings, returning the cache to null. This is not done automatically, so be aware that
         /// if you spam the InjectedBindings method the objects that were bound won't be properly garbage collected.
         /// </summary>
-        public static void ClearInjectedBindings()
-        {
+        public static void ClearInjectedBindings () {
             injected = null;
         }
 
         /// <summary>
-        /// Register an object of type <T> by name. Used when an object would normally be found
+        /// Register an object of type T by name. Used when an object would normally be found
         /// with multiple calls to GameObject.Find().
         /// </summary>
         /// <param name="name">Name of object to register.</param>
         /// <typeparam name="T">The type of object to register as.</typeparam>
         /// <param name="instance">reference to object</param>
-        public static void Register<T>(string name, System.Object instance) 
-        {
+        public static void Register<T> (string name, System.Object instance) {
             if (registrations == null) {
-                registrations = new List<Registration>();
+                registrations = new List<Registration> ();
             }
 
-            var registration = new Registration();
+            var registration = new Registration ();
             registration.name = name;
-            registration.type = typeof(T);
+            registration.type = typeof (T);
             registration.instance = instance;
 
-            registrations.Add(registration);
+            registrations.Add (registration);
         }
 
         /// <summary>
@@ -379,18 +337,27 @@ namespace Fetch
         /// <param name="name">The name of the object to search for.</param>
         /// <typeparam name="T">The type of the object to search for.</typeparam>
         /// <returns>regerence to registered object.</returns>
-        public static T Find<T>(string name) 
-        {
-            Registration r;           
-            Type t = typeof(T);
+        public static T Find<T> (string name) {
+            Registration r;
+            Type t = typeof (T);
 
             // if there are any injected bindings that match, return that
-            if (registrations != null && registrations.Count >= 1 && (r = registrations.FirstOrDefault(x => x.type == t && x.name == name)) != null)
-            {
-                return (T)r.instance;
+            if (registrations != null && registrations.Count >= 1 && (r = registrations.FirstOrDefault (x => x.type == t && x.name == name)) != null) {
+                return (T) r.instance;
             }
 
-            throw new NoSuchRegistrationException("could not find " + t.ToString() + " with name: " + name);
+            throw new NoSuchRegistrationException ("could not find " + t.ToString () + " with name: " + name);
+        }
+
+        /// <summary>
+        /// A helper method that can be used to load resources from your resources
+        /// folder.
+        /// </summary>
+        /// <returns>The resource.</returns>
+        /// <param name="path">path to resource.</param>
+        /// <typeparam name="T">type to assign to resource.</typeparam>
+        public static T Resource<T> (string path) where T : UnityEngine.Object {
+            return (T)Resources.Load(path);
         }
     }
 }

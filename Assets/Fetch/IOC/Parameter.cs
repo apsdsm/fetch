@@ -1,12 +1,10 @@
 using System;
 
-namespace Fetch
-{
+namespace Fetch {
     /// <summary>
     /// A representation of a parameter in an obejct constructor.
     /// </summary>
-    public class Parameter
-    {
+    public class Parameter {
         // type of object reserved
         public Type type;
 

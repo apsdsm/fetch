@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
 
@@ -11,6 +10,12 @@ namespace Fetch
     /// </summary>
     public class ServiceProvider : MonoBehaviour
     {
+
+        /// <summary>
+        /// provider will persist between level loads
+        /// </summary>
+        public bool persistAlways;
+
         /// <summary>
         /// store bindings for this provider
         /// </summary>
@@ -20,6 +25,18 @@ namespace Fetch
         /// true if provider was popualted
         /// </summary>
         private bool populated;
+
+
+        /// <summary>
+        /// If the container is set to persist, will check the object's DontDestroyOnLoad flag.
+        /// </summary>
+        void Awake()
+        {
+            if (persistAlways)
+            {
+                DontDestroyOnLoad(gameObject);
+            }
+        }
 
         /// <summary>
         /// Returns a list of bindings for this provider.
@@ -58,12 +75,14 @@ namespace Fetch
         /// </summary>
         public void Bind<Q, R>()
         {
-            bindings.Add(new Binding
+            var b = new Binding
             {
                 queryType = typeof(Q),
                 resolveType = typeof(R),
                 singleton = false,
-            });
+            };
+
+            bindings.Add(b);
         }
 
         /// <summary>
@@ -72,12 +91,14 @@ namespace Fetch
         /// </summary>
         public void Singleton<Q, R>()
         {
-            bindings.Add(new Binding
+            var b = new Binding
             {
                 queryType = typeof(Q),
                 resolveType = typeof(R),
                 singleton = true,
-            });
+            };
+
+            bindings.Add(b);
         }
     }
 }
