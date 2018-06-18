@@ -7,7 +7,7 @@ Fetch is a very light weight IOC Container for Unity. It allows you decouple you
 Fetch is an IOC container for Unity that makes it easier to resolve services and objects from inside your objects. It has: 
 
 - a service resolver for pulling in concrete classes based on their interfaces
-- an object generation system for building objects with automatic dependency identification
+- an object generation system for building objects with automatic dependency injection
 - helper methods for making loading resources or finding game scene objects easier and faster. 
 
 You can think of Fetch as an all around Nice Guy who wants to get your objects to you ASAP.
@@ -267,9 +267,9 @@ This is a very small project and I don't expect any outside contribution. Howeve
 
 ## Installing
 
-There is a package in the `Packages` folder that you can import into your Unity projects. If you want to work on improving Fetch itself, then I suggest checking out the repository. The package is not guaranteed to be always up to date, so if you want the most recent version, download the source and copy the Fetch directory into your project.
+There is a package in the `Packages` folder that you can import into your Unity projects. If you want to work on improving Fetch itself, then I suggest checking out the repository. **The package is not guaranteed to be always up to date**, so if you want the most recent version, download the source and copy the Fetch directory into your project.
 
-Once this project feels a little more mature (read: the public interface doesn't change so often), I'll see about submitting a version to the asset store for easier installation.
+Once this project feels a little more mature, I'll see about submitting a version to the asset store for easier installation.
 
 ## About Tests
 
